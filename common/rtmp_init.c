@@ -701,16 +701,21 @@ VOID NICReadEEPROMParameters(RTMP_ADAPTER *pAd, PSTRING mac_addr)
 	else
 #endif /* RT65xx */
 	/* 1. 11a*/
-	{
-		{
-		}
 
-		DBGPRINT(RT_DEBUG_TRACE,("E2PROM: A Tssi[-4 .. +4] = %d %d %d %d - %d -%d %d %d %d, step=%d, tuning=%d\n",
-			pAd->TssiMinusBoundaryA[4], pAd->TssiMinusBoundaryA[3], pAd->TssiMinusBoundaryA[2], pAd->TssiMinusBoundaryA[1],
-			pAd->TssiRefA,
-			pAd->TssiPlusBoundaryA[1], pAd->TssiPlusBoundaryA[2], pAd->TssiPlusBoundaryA[3], pAd->TssiPlusBoundaryA[4],
-			pAd->TxAgcStepA, pAd->bAutoTxAgcA));
-	}	
+/* CK
+	DBGPRINT(RT_DEBUG_TRACE,("E2PROM: A Tssi[-4 .. +4] = %lu %lu %lu %lu - %d -%lu %lu %lu %lu, step=%d, tuning=%d\n",
+		(unsigned long) pAd->TssiMinusBoundaryA[4],
+		(unsigned long) pAd->TssiMinusBoundaryA[3],
+		(unsigned long) pAd->TssiMinusBoundaryA[2],
+		(unsigned long) pAd->TssiMinusBoundaryA[1],
+		pAd->TssiRefA,
+		(unsigned long) pAd->TssiPlusBoundaryA[1],
+		(unsigned long) pAd->TssiPlusBoundaryA[2],
+		(unsigned long) pAd->TssiPlusBoundaryA[3],
+		(unsigned long) pAd->TssiPlusBoundaryA[4],
+		pAd->TxAgcStepA, pAd->bAutoTxAgcA));
+*/
+
 	pAd->BbpRssiToDbmDelta = 0x0;
 	
 	/* Read frequency offset setting for RF*/
@@ -1048,7 +1053,9 @@ VOID	NICInitAsicFromEEPROM(
 	IN	PRTMP_ADAPTER	pAd)
 {
 	UINT32 data = 0;
+#ifndef RT65xx
 	USHORT i;
+#endif
 #ifdef RALINK_ATE
 	USHORT value;
 #endif /* RALINK_ATE */
@@ -1409,8 +1416,6 @@ NDIS_STATUS	NICInitializeAsic(
 
 	DBGPRINT(RT_DEBUG_TRACE, ("--> NICInitializeAsic\n"));
 
-
-
 #ifdef RTMP_MAC_USB
 	/* Make sure MAC gets ready after NICLoadFirmware().*/
 	
@@ -1419,7 +1424,7 @@ NDIS_STATUS	NICInitializeAsic(
 	/*To avoid hang-on issue when interface up in kernel 2.4, */
 	/*we use a local variable "MacCsr0" instead of using "pAd->MACVersion" directly.*/
 	if (WaitForAsicReady(pAd) != TRUE)
-			return NDIS_STATUS_FAILURE;
+		return NDIS_STATUS_FAILURE;
 
 	// TODO: shiang, how about the value setting of pAd->MACVersion?? Original it assigned here
 
@@ -1564,7 +1569,7 @@ NDIS_STATUS	NICInitializeAsic(
 	}
 
 #ifdef RTMP_MAC_USB
-{
+	{
 		UINT32 MACValue[254 * 2];
 	
 		for (Index = 0; Index < 254 * 2; Index += 2)
@@ -1574,7 +1579,7 @@ NDIS_STATUS	NICInitializeAsic(
 		}
 
 		BURST_WRITE(pAd, MAC_WCID_BASE, MACValue, 254 * 2);
-}
+	}
 #endif /* RTMP_MAC_USB */
 
 	/* Add radio off control*/
@@ -1591,41 +1596,27 @@ NDIS_STATUS	NICInitializeAsic(
 	/* Clear raw counters*/
 	NicResetRawCounters(pAd);
 	
+#ifdef RTMP_MAC_USB
 	/* ASIC will keep garbage value after boot*/
 	/* Clear all shared key table when initial*/
 	/* This routine can be ignored in radio-ON/OFF operation. */
 	if (bHardReset)
 	{
-#ifdef RTMP_MAC_USB
-		{
-			UINT32 MACValue[4];
+		UINT32 MACValue[256];
 
-			for (Index = 0; Index < 4; Index++)
-				MACValue[Index] = 0;
+		for (Index = 0; Index < 4; Index++)
+			MACValue[Index] = 0;
 
-			BURST_WRITE(pAd, SHARED_KEY_MODE_BASE, MACValue, 4);
-		}
+		BURST_WRITE(pAd, SHARED_KEY_MODE_BASE, MACValue, 4);
 
 		/* Clear all pairwise key table when initial*/
-		{
-			UINT32 MACValue[256];
 
-			for (Index = 0; Index < 256; Index++)
-				MACValue[Index] = 1;
+		for (Index = 0; Index < 256; Index++)
+			MACValue[Index] = 1;
 
-			BURST_WRITE(pAd, MAC_WCID_ATTRIBUTE_BASE, MACValue, 256);
-		}
-#endif /* RTMP_MAC_USB */
-
+		BURST_WRITE(pAd, MAC_WCID_ATTRIBUTE_BASE, MACValue, 256);
 	}
 
-	/* It isn't necessary to clear this space when not hard reset. */
-	if (bHardReset == TRUE)
-	{
-		/* clear all on-chip BEACON frame space */
-	}
-	
-#ifdef RTMP_MAC_USB
 	AsicDisableSync(pAd);
 
 	/* Clear raw counters*/

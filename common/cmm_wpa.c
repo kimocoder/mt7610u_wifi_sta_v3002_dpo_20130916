@@ -767,8 +767,8 @@ VOID PeerPairMsg1Action(
 	if ((!pEntry) || (!IS_ENTRY_CLIENT(pEntry) && !IS_ENTRY_APCLI(pEntry)))
 		return;
 
-    if (Elem->MsgLen < (LENGTH_802_11 + LENGTH_802_1_H + LENGTH_EAPOL_H + MIN_LEN_OF_EAPOL_KEY_MSG))
-        return;
+	if (Elem->MsgLen < (LENGTH_802_11 + LENGTH_802_1_H + LENGTH_EAPOL_H + MIN_LEN_OF_EAPOL_KEY_MSG))
+        	return;
 	
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{				
@@ -1219,31 +1219,31 @@ VOID WPAStart2WayGroupHS(
     IN MAC_TABLE_ENTRY  *pEntry) 
 {
     UCHAR               Header802_3[14];
-	UCHAR   			TxTsc[6]; 
-	UCHAR   			*mpool;
-	PEAPOL_PACKET		pEapolFrame;
-	UCHAR				group_cipher = Ndis802_11WEPDisabled;	
-	UCHAR				default_key = 0;
-	PUINT8				gnonce_ptr = NULL;
-	PUINT8				gtk_ptr = NULL;
-	PUINT8				pBssid = NULL;
+    UCHAR   			TxTsc[6]; 
+    UCHAR   			*mpool;
+    PEAPOL_PACKET		pEapolFrame;
+    UCHAR				group_cipher = Ndis802_11WEPDisabled;	
+    UCHAR				default_key = 0;
+    PUINT8				gnonce_ptr = NULL;
+    PUINT8				gtk_ptr = NULL;
+    PUINT8				pBssid = NULL;
     
-	DBGPRINT(RT_DEBUG_TRACE, ("===> WPAStart2WayGroupHS\n"));
+    DBGPRINT(RT_DEBUG_TRACE, ("===> WPAStart2WayGroupHS\n"));
 
     if ((!pEntry) || !IS_ENTRY_CLIENT(pEntry))
         return;
 
 
 	/* Allocate memory for output*/
-	os_alloc_mem(NULL, (PUCHAR *)&mpool, TX_EAPOL_BUFFER);
-	if (mpool == NULL)
+    os_alloc_mem(NULL, (PUCHAR *)&mpool, TX_EAPOL_BUFFER);
+    if (mpool == NULL)
     {
         DBGPRINT(RT_DEBUG_ERROR, ("!!!%s : no memory!!!\n", __FUNCTION__));
         return;
     }
 
-	pEapolFrame = (PEAPOL_PACKET)mpool;
-	NdisZeroMemory(pEapolFrame, TX_EAPOL_BUFFER);
+    pEapolFrame = (PEAPOL_PACKET)mpool;
+    NdisZeroMemory(pEapolFrame, TX_EAPOL_BUFFER);
 
     /* Increment replay counter by 1*/
 	ADD_ONE_To_64BIT_VAR(pEntry->R_Counter);

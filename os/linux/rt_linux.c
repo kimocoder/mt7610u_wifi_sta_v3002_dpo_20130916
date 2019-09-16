@@ -180,8 +180,6 @@ VOID RTMPusecDelay(ULONG usec)
 /* Unify all delay routine by using udelay */
 VOID RtmpOsUsDelay(ULONG value)
 {
-	ULONG i;
-
 	udelay(value);
 }
 
@@ -2027,10 +2025,6 @@ int RtmpOSIRQRelease(
 	IN PPCI_DEV pci_dev,
 	IN BOOLEAN *pHaveMsi)
 {
-	struct net_device *net_dev = (struct net_device *)pNetDev;
-
-
-
 	return 0;
 }
 
@@ -2531,7 +2525,7 @@ BOOLEAN CFG80211_SupBandInit(
 		}
 	}
 
-	CFG80211DBG(RT_DEBUG_ERROR, ("80211> Number of channel = %d\n",
+	CFG80211DBG(RT_DEBUG_ERROR, ("80211> Number of channel = %lu\n",
 				CFG80211_NUM_OF_CHAN_5GHZ));
 
 	if (pRates == NULL)
@@ -3037,10 +3031,13 @@ VOID CFG80211OS_ScanEnd(
 	IN BOOLEAN FlgIsAborted)
 {
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
+	struct cfg80211_scan_info info;
 
+/* CK This is wrong, revisit, but this was an interesting bug */
+	info.aborted = FlgIsAborted;
 
 	CFG80211DBG(RT_DEBUG_ERROR, ("80211> cfg80211_scan_done\n"));
-	cfg80211_scan_done(pCfg80211_CB->pCfg80211_ScanReq, FlgIsAborted);
+	cfg80211_scan_done(pCfg80211_CB->pCfg80211_ScanReq, &info);
 }
 
 

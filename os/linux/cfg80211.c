@@ -174,6 +174,7 @@ static INT32 CFG80211_RegNotifier(
 		}															\
 	}
 
+#if defined(__bogon__)
 /*
 ========================================================================
 Routine Description:
@@ -210,12 +211,11 @@ static int CFG80211_OpsChannelSet(
 	CFG80211_CB *p80211CB;
 	CMD_RTPRIV_IOCTL_80211_CHAN ChanInfo;
 	UINT32 ChanId;
-
+	struct net_device *dev = NULL;
 
 	CFG80211DBG(RT_DEBUG_ERROR, ("80211> %s ==>\n", __FUNCTION__));
 	MAC80211_PAD_GET(pAd, pWiphy);
 
-	struct net_device *dev = NULL;
 	RTMP_DRIVER_NET_DEV_GET(pAd, &dev);
 
 	/* get channel number */
@@ -259,7 +259,7 @@ static int CFG80211_OpsChannelSet(
 
 	return 0;
 } /* End of CFG80211_OpsChannelSet */
-
+#endif
 
 /*
 ========================================================================
@@ -389,6 +389,7 @@ static int CFG80211_OpsScan(
 {
 	VOID *pAd;
 	CFG80211_CB *pCfg80211_CB;
+	struct net_device *pNdev = NULL;
 #ifdef WPA_SUPPLICANT_SUPPORT
 	struct iw_scan_req IwReq;
 	union iwreq_data Wreq;
@@ -401,10 +402,9 @@ static int CFG80211_OpsScan(
 	if (RTMP_TEST_FLAG(((PRTMP_ADAPTER)pAd), fRTMP_ADAPTER_HALT_IN_PROGRESS | fRTMP_ADAPTER_NIC_NOT_EXIST))
 	{
 		CFG80211DBG(RT_DEBUG_ERROR, ("80211> %s adapter halting. exiting. \n", __FUNCTION__));
-		return;
+		return 0;
 	}
 
-	struct net_device *pNdev = NULL;
 	RTMP_DRIVER_NET_DEV_GET(pAd, &pNdev);
 
 	/* sanity check */
@@ -657,7 +657,7 @@ static int CFG80211_OpsStaGet(
 	if (RTMP_TEST_FLAG(((PRTMP_ADAPTER)pAd), fRTMP_ADAPTER_HALT_IN_PROGRESS | fRTMP_ADAPTER_NIC_NOT_EXIST))
 	{
 		CFG80211DBG(RT_DEBUG_ERROR, ("80211> %s adapter halting. exiting. \n", __FUNCTION__));
-		return;
+		return 0;
 	}
 
 	/* init */
@@ -1468,9 +1468,7 @@ static int CFG80211_OpsPmksaFlush(
 } /* End of CFG80211_OpsPmksaFlush */
 
 
-
-
-
+#if defined(__bogon__)
 static int CFG80211_OpsStartAp(
 	struct wiphy *pWiphy,
 	struct net_device *netdev,
@@ -1563,9 +1561,7 @@ static int CFG80211_OpsStopAp(
 	RTMP_DRIVER_80211_BEACON_DEL(pAd);
 	return 0;
 }
-
-
-
+#endif
 
 struct cfg80211_ops CFG80211_Ops = {
 	// TODO: ? https://github.com/coolshou/mt7610u/pull/1/files

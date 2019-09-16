@@ -1060,7 +1060,7 @@ INT	Set_DebugFunc_Proc(
 {
 	DBGPRINT_S(RT_DEBUG_TRACE, ("==>%s()\n", __FUNCTION__));
 	RTDebugFunc = simple_strtol(arg, 0, 10);
-	DBGPRINT_S(RT_DEBUG_TRACE, ("Set RTDebugFunc = 0x%x\n", RTDebugFunc));
+	DBGPRINT_S(RT_DEBUG_TRACE, ("Set RTDebugFunc = 0x%lx\n", RTDebugFunc));
 
 	return TRUE;
 }
@@ -1715,7 +1715,7 @@ PSTRING GetEncryptType(CHAR enc)
     	return "TKIP";
     if(enc == Ndis802_11Encryption3Enabled)
     	return "AES";
-	if(enc == Ndis802_11Encryption4Enabled)
+    if(enc == Ndis802_11Encryption4Enabled)
     	return "TKIPAES";
     else
     	return "UNKNOW";
@@ -1727,7 +1727,7 @@ PSTRING GetAuthMode(CHAR auth)
     	return "OPEN";
     if(auth == Ndis802_11AuthModeShared)
     	return "SHARED";
-	if(auth == Ndis802_11AuthModeAutoSwitch)
+    if(auth == Ndis802_11AuthModeAutoSwitch)
     	return "AUTOWEP";
     if(auth == Ndis802_11AuthModeWPA)
     	return "WPA";
@@ -1739,12 +1739,12 @@ PSTRING GetAuthMode(CHAR auth)
     	return "WPA2";
     if(auth == Ndis802_11AuthModeWPA2PSK)
     	return "WPA2PSK";
-	if(auth == Ndis802_11AuthModeWPA1WPA2)
+    if(auth == Ndis802_11AuthModeWPA1WPA2)
     	return "WPA1WPA2";
-	if(auth == Ndis802_11AuthModeWPA1PSKWPA2PSK)
+    if(auth == Ndis802_11AuthModeWPA1PSKWPA2PSK)
     	return "WPA1PSKWPA2PSK";
 	
-    	return "UNKNOW";
+    return "UNKNOW";
 }		
 
 
@@ -4142,7 +4142,7 @@ INT	Show_PMK_Proc(
     for (idx = 0; idx < 32; idx++)
         sprintf(pBuf+strlen(pBuf), "%02X", PMK[idx]);
 
-	return 0;
+    return 0;
 }
 
 
@@ -5885,7 +5885,7 @@ INT set_rf(RTMP_ADAPTER *pAd, PSTRING arg)
 	
 	if (arg)
 	{
-		rv = sscanf(arg, "%d-%d-%x", &(bank_id), &(rf_id), &(rf_val));
+		rv = sscanf(arg, "%d-%d-%hhx", &(bank_id), &(rf_id), &(rf_val));
 		DBGPRINT(RT_DEBUG_TRACE, ("%s():rv = %d, bank_id = %d, rf_id = %d, rf_val = 0x%02x\n", __FUNCTION__, rv, bank_id, rf_id, rf_val));
 		if (rv == 3)
 		{

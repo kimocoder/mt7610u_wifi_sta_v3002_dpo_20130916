@@ -791,13 +791,15 @@ INT Set_EncrypType_Proc(
 	    pAd->StaCfg.GroupCipher   = Ndis802_11Encryption3Enabled;
     }
     else
+    {
         return FALSE;
+    }
 
-	if (pAd->StaCfg.BssType == BSS_ADHOC)
-	{
+    if (pAd->StaCfg.BssType == BSS_ADHOC)
+    {
 		/* Build all corresponding channel information */
 		RTMPSetPhyMode(pAd, pAd->CommonCfg.cfg_wmode);
-	}
+    }
 
     DBGPRINT(RT_DEBUG_TRACE, ("Set_EncrypType_Proc::(EncrypType=%d)\n", pAd->StaCfg.WepStatus));
 
@@ -5723,7 +5725,7 @@ RtmpIoctl_rt_ioctl_siwfreq(
     else
         return NDIS_STATUS_FAILURE;
 
-	return NDIS_STATUS_SUCCESS;
+    return NDIS_STATUS_SUCCESS;
 }
 
 
@@ -7606,9 +7608,9 @@ RtmpIoctl_rt_ioctl_giwrate(
     if (rate_index >= rate_count)
         rate_index = rate_count-1;
 
-	*(ULONG *)pData = ralinkrate[rate_index] * 500000;
+    *(ULONG *)pData = ralinkrate[rate_index] * 500000;
 
-	return NDIS_STATUS_SUCCESS;
+    return NDIS_STATUS_SUCCESS;
 }
 
 
