@@ -102,22 +102,15 @@ static inline VOID __RTMP_SetPeriodicTimer(
 	IN unsigned long timeout)
 {
 	timeout = ((timeout * OS_HZ) / 1000);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	(&pTimer->t)->expires = jiffies + timeout;
 	add_timer(&pTimer->t);
-#else
-	pTimer->expires = jiffies + timeout;
-	add_timer(pTimer);
-#endif
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 static void legacy_timer_emu_func(struct timer_list *t)
 {
        struct legacy_timer_emu *lt = from_timer(lt, t, t);
        lt->function(lt->data);
 }
-#endif
 
 
 /* convert NdisMInitializeTimer --> RTMP_OS_Init_Timer */
@@ -127,13 +120,8 @@ static inline VOID __RTMP_OS_Init_Timer(
 	IN TIMER_FUNCTION function,
 	IN PVOID data)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	if (!timer_pending(&pTimer->t)) {
 		timer_setup(&pTimer->t, legacy_timer_emu_func, 0);
-#else
-	if (!timer_pending(pTimer)) {
-		init_timer(pTimer);
-#endif
 		pTimer->data = (unsigned long)data;
 		pTimer->function = function;
 	}
@@ -143,22 +131,12 @@ static inline VOID __RTMP_OS_Add_Timer(
 	IN OS_NDIS_MINIPORT_TIMER * pTimer,
 	IN unsigned long timeout)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	if (timer_pending(&pTimer->t))
 		return;
-#else
-	if (timer_pending(pTimer))
-		return;
-#endif
 
 	timeout = ((timeout * OS_HZ) / 1000);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	(&pTimer->t)->expires = jiffies + timeout;
 	add_timer(&pTimer->t);
-#else
-	pTimer->expires = jiffies + timeout;
-	add_timer(pTimer);
-#endif
 }
 
 static inline VOID __RTMP_OS_Mod_Timer(
@@ -166,24 +144,15 @@ static inline VOID __RTMP_OS_Mod_Timer(
 	IN unsigned long timeout)
 {
 	timeout = ((timeout * OS_HZ) / 1000);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	mod_timer(&pTimer->t, jiffies + timeout);
-#else
-	mod_timer(pTimer, jiffies + timeout);
-#endif
 }
 
 static inline VOID __RTMP_OS_Del_Timer(
 	IN OS_NDIS_MINIPORT_TIMER * pTimer,
 	OUT BOOLEAN *pCancelled)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 	if (timer_pending(&pTimer->t))
 		*pCancelled = del_timer_sync(&pTimer->t);
-#else
-	if (timer_pending(pTimer))
-		*pCancelled = del_timer_sync(pTimer);
-#endif
 	else
 		*pCancelled = TRUE;
 }
@@ -1144,23 +1113,12 @@ static inline void __RtmpOSFSInfoChange(OS_FS_INFO * pOSFSInfo, BOOLEAN bSet)
 	if (bSet) {
 		/* Save uid and gid used for filesystem access. */
 		/* Set user and group to 0 (root) */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,29)
-		pOSFSInfo->fsuid = current->fsuid;
-		pOSFSInfo->fsgid = current->fsgid;
-		current->fsuid = current->fsgid = 0;
-
-#else
 		pOSFSInfo->fsuid = current_fsuid();
 		pOSFSInfo->fsgid = current_fsgid(); 
-#endif
 		pOSFSInfo->fs = get_fs();
 		set_fs(KERNEL_DS);
 	} else {
 		set_fs(pOSFSInfo->fs);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,29)
-		current->fsuid = pOSFSInfo->fsuid;
-		current->fsgid = pOSFSInfo->fsgid;
-#endif
 	}
 }
 
@@ -1221,30 +1179,11 @@ static inline void __RtmpOSTaskCustomize(OS_TASK *pTask)
 {
 #ifndef KTHREAD_SUPPORT
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 	daemonize((PSTRING) & pTask->taskName[0] /*"%s",pAd->net_dev->name */ );
 
 	allow_signal(SIGTERM);
 	allow_signal(SIGKILL);
 	current->flags |= PF_NOFREEZE;
-#else
-	unsigned long flags;
-
-	daemonize();
-	reparent_to_init();
-	strcpy(current->comm, &pTask->taskName[0]);
-
-	siginitsetinv(&current->blocked, sigmask(SIGTERM) | sigmask(SIGKILL));
-
-	/* Allow interception of SIGKILL only
-	 * Don't allow other signals to interrupt the transmission */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,22)
-	spin_lock_irqsave(&current->sigmask_lock, flags);
-	flush_signals(current);
-	recalc_sigpending(current);
-	spin_unlock_irqrestore(&current->sigmask_lock, flags);
-#endif
-#endif
 
 	RTMP_GET_OS_PID(pTask->taskPID, current->pid);
 
@@ -1344,36 +1283,6 @@ BOOLEAN __RtmpOSTaskWait(
 }
 
 
-#if LINUX_VERSION_CODE <= 0x20402	/* Red Hat 7.1 */
-struct net_device *alloc_netdev(
-	int sizeof_priv,
-	const char *mask,
-	void (*setup) (struct net_device *))
-{
-	struct net_device *dev;
-	INT alloc_size;
-
-	/* ensure 32-byte alignment of the private area */
-	alloc_size = sizeof (*dev) + sizeof_priv + 31;
-
-	dev = (struct net_device *)kmalloc(alloc_size, GFP_KERNEL);
-	if (dev == NULL) {
-		DBGPRINT(RT_DEBUG_ERROR,
-			 ("alloc_netdev: Unable to allocate device memory.\n"));
-		return NULL;
-	}
-
-	memset(dev, 0, alloc_size);
-
-	if (sizeof_priv)
-		dev->priv = (void *)(((long)(dev + 1) + 31) & ~31);
-
-	setup(dev);
-	strcpy(dev->name, mask);
-
-	return dev;
-}
-#endif /* LINUX_VERSION_CODE */
 
 
 static UINT32 RtmpOSWirelessEventTranslate(IN UINT32 eventType)
@@ -1578,11 +1487,7 @@ void RtmpOSNetDevFree(PNET_DEV pNetDev)
 	if (pDevInfo != NULL)
 		os_free_mem(NULL, pDevInfo);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 	free_netdev(pNetDev);
-#else
-	kfree(pNetDev);
-#endif
 
 #ifdef VENDOR_FEATURE4_SUPPORT
 	printk("OS_NumOfMemAlloc = %ld, OS_NumOfMemFree = %ld\n",
@@ -1603,11 +1508,7 @@ INT RtmpOSNetDevAlloc(
 	DBGPRINT(RT_DEBUG_TRACE,
 		 ("Allocate a net device with private data size=%d!\n",
 		  privDataSize));
-#if LINUX_VERSION_CODE <= 0x20402	/* Red Hat 7.1 */
-	*new_dev_p = alloc_netdev(privDataSize, "eth%d", ether_setup);
-#else
 	*new_dev_p = alloc_etherdev(privDataSize);
-#endif /* LINUX_VERSION_CODE */
 
 	if (*new_dev_p)
 		return NDIS_STATUS_SUCCESS;
@@ -1616,7 +1517,6 @@ INT RtmpOSNetDevAlloc(
 }
 
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 INT RtmpOSNetDevOpsAlloc(PVOID *pNetDevOps)
 {
 	*pNetDevOps = (PVOID) vmalloc(sizeof (struct net_device_ops));
@@ -1627,38 +1527,15 @@ INT RtmpOSNetDevOpsAlloc(PVOID *pNetDevOps)
 		return NDIS_STATUS_FAILURE;
 	}
 }
-#endif
 
 
 PNET_DEV RtmpOSNetDevGetByName(PNET_DEV pNetDev, PSTRING pDevName)
 {
 	PNET_DEV pTargetNetDev = NULL;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 	pTargetNetDev = dev_get_by_name(dev_net(pNetDev), pDevName);
-#else
-	ASSERT(pNetDev);
-	pTargetNetDev = dev_get_by_name(pNetDev->nd_net, pDevName);
-#endif
-#else
-	pTargetNetDev = dev_get_by_name(pDevName);
-#endif /* KERNEL_VERSION(2,6,24) */
 
-#else
-	int devNameLen;
-
-	devNameLen = strlen(pDevName);
-	ASSERT((devNameLen <= IFNAMSIZ));
-
-	for (pTargetNetDev = dev_base; pTargetNetDev != NULL;
-	     pTargetNetDev = pTargetNetDev->next) {
-		if (strncmp(pTargetNetDev->name, pDevName, devNameLen) == 0)
-			break;
-	}
-#endif /* KERNEL_VERSION(2,5,0) */
 
 	return pTargetNetDev;
 }
@@ -1666,7 +1543,6 @@ PNET_DEV RtmpOSNetDevGetByName(PNET_DEV pNetDev, PSTRING pDevName)
 
 void RtmpOSNetDeviceRefPut(PNET_DEV pNetDev)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 	/* 
 	   every time dev_get_by_name is called, and it has returned a valid struct 
 	   net_device*, dev_put should be called afterwards, because otherwise the 
@@ -1674,7 +1550,6 @@ void RtmpOSNetDeviceRefPut(PNET_DEV pNetDev)
 	 */
 	if (pNetDev)
 		dev_put(pNetDev);
-#endif /* LINUX_VERSION_CODE */
 }
 
 
@@ -1690,9 +1565,7 @@ INT RtmpOSNetDevDestory(VOID *pReserved, PNET_DEV pNetDev)
 
 void RtmpOSNetDevDetach(PNET_DEV pNetDev)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = (struct net_device_ops *)pNetDev->netdev_ops;
-#endif
 
 	printk("RtmpOSNetDevDetach: enter\n");
 
@@ -1703,9 +1576,7 @@ void RtmpOSNetDevDetach(PNET_DEV pNetDev)
 		unregister_netdev(pNetDev);
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	vfree(pNetDevOps);
-#endif
 }
 
 void RtmpOSNetDevProtect(BOOLEAN lock_it)
@@ -1719,7 +1590,6 @@ void RtmpOSNetDevProtect(BOOLEAN lock_it)
 */
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18)
 static void RALINK_ET_DrvInfoGet(
 	struct net_device *pDev,
 	struct ethtool_drvinfo *pInfo)
@@ -1733,7 +1603,6 @@ static void RALINK_ET_DrvInfoGet(
 static struct ethtool_ops RALINK_Ethtool_Ops = {
 	.get_drvinfo = RALINK_ET_DrvInfoGet,
 };
-#endif
 
 
 int RtmpOSNetDevAttach(
@@ -1744,9 +1613,7 @@ int RtmpOSNetDevAttach(
 	int ret,
 	 rtnl_locked = FALSE;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = (struct net_device_ops *)pNetDev->netdev_ops;
-#endif
 
 	DBGPRINT(RT_DEBUG_TRACE, ("RtmpOSNetDevAttach()--->\n"));
 
@@ -1756,33 +1623,19 @@ int RtmpOSNetDevAttach(
 
 /*		GET_PAD_FROM_NET_DEV(pAd, pNetDev); */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 		pNetDevOps->ndo_open = pDevOpHook->open;
 		pNetDevOps->ndo_stop = pDevOpHook->stop;
 		pNetDevOps->ndo_start_xmit =
 		    (HARD_START_XMIT_FUNC) (pDevOpHook->xmit);
 		pNetDevOps->ndo_do_ioctl = pDevOpHook->ioctl;
-#else
-		pNetDev->open = pDevOpHook->open;
-		pNetDev->stop = pDevOpHook->stop;
-		pNetDev->hard_start_xmit =
-		    (HARD_START_XMIT_FUNC) (pDevOpHook->xmit);
-		pNetDev->do_ioctl = pDevOpHook->ioctl;
-#endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18)
 		pNetDev->ethtool_ops = &RALINK_Ethtool_Ops;
-#endif
 
 		/* if you don't implement get_stats, just leave the callback function as NULL, a dummy 
 		   function will make kernel panic.
 		 */
 		if (pDevOpHook->get_stats)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 			pNetDevOps->ndo_get_stats = pDevOpHook->get_stats;
-#else
-			pNetDev->get_stats = pDevOpHook->get_stats;
-#endif
 
 		/* OS specific flags, here we used to indicate if we are virtual interface */
 /*		pNetDev->priv_flags = pDevOpHook->priv_flags; */
@@ -1818,14 +1671,8 @@ int RtmpOSNetDevAttach(
 		rtnl_locked = pDevOpHook->needProtcted;
 
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	pNetDevOps->ndo_validate_addr = NULL;
 	/*pNetDev->netdev_ops = ops; */
-#else
-	pNetDev->validate_addr = NULL;
-#endif
-#endif
 
 	if (rtnl_locked)
 		ret = register_netdevice(pNetDev);
@@ -1850,9 +1697,7 @@ PNET_DEV RtmpOSNetDevCreate(
 	IN PSTRING pNamePrefix)
 {
 	struct net_device *pNetDev = NULL;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = NULL;
-#endif
 	int status;
 
 	/* allocate a new network device */
@@ -1862,7 +1707,6 @@ PNET_DEV RtmpOSNetDevCreate(
 		DBGPRINT(RT_DEBUG_ERROR, ("Allocate network device fail (%s)...\n", pNamePrefix));
 		return NULL;
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	status = RtmpOSNetDevOpsAlloc((PVOID) & pNetDevOps);
 	if (status != NDIS_STATUS_SUCCESS) {
 		/* error! no any available ra name can be used! */
@@ -1874,7 +1718,6 @@ PNET_DEV RtmpOSNetDevCreate(
 		DBGPRINT(RT_DEBUG_TRACE, ("Allocate net device ops success!\n"));
 		pNetDev->netdev_ops = pNetDevOps;
 	}
-#endif
 	/* find a available interface name, max 32 interfaces */
 	status = RtmpOSNetDevRequestName(MC_RowID, pIoctlIF, pNetDev, pNamePrefix, devNum);
 	if (status != NDIS_STATUS_SUCCESS) {
@@ -2732,14 +2575,9 @@ BOOLEAN CFG80211_SupBandInit(
 		// https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/include/net/cfg80211.h?h=linux-2.6.39.y
 		// http://www.infty.nl/wordpress/2011/0/
 		// https://github.com/coolshou/mt7610u/pull/1/files?diff=split
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39))
-		pChannels[IdLoop].center_freq = \
-					ieee80211_channel_to_frequency(Cfg80211_Chan[IdLoop]);
-#else
 		pChannels[IdLoop].center_freq = \
 					ieee80211_channel_to_frequency(Cfg80211_Chan[IdLoop],
 						(IdLoop<CFG80211_NUM_OF_CHAN_2GHZ)?NL80211_BAND_2GHZ:NL80211_BAND_5GHZ);
-#endif
 		pChannels[IdLoop].hw_value = IdLoop;
 
 		if (IdLoop < CFG80211_NUM_OF_CHAN_2GHZ)
@@ -2906,13 +2744,11 @@ BOOLEAN CFG80211OS_SupBandReInit(
 							pCfg80211_CB->pCfg80211_Channels,
 							pCfg80211_CB->pCfg80211_Rates);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
 		/* re-init PHY */
 		pWiphy->rts_threshold = pBandInfo->RtsThreshold;
 		pWiphy->frag_threshold = pBandInfo->FragmentThreshold;
 		pWiphy->retry_short = pBandInfo->RetryMaxCnt & 0xff;
 		pWiphy->retry_long = (pBandInfo->RetryMaxCnt & 0xff00)>>8;
-#endif /* LINUX_VERSION_CODE */
 
 		return TRUE;
 	}
@@ -2985,27 +2821,6 @@ VOID CFG80211OS_RegHint11D(
 	IN ULONG CountryIeLen)
 {
 	/* no regulatory_hint_11d() in 2.6.32 */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
-
-
-	if ((pCfg80211_CB->pCfg80211_Wdev == NULL) || (pCountryIe == NULL))
-	{
-		CFG80211DBG(RT_DEBUG_ERROR, ("crda> regulatory domain hint not support!\n"));
-		return;
-	}
-
-	CFG80211DBG(RT_DEBUG_ERROR,
-				("crda> regulatory domain hint: %c%c\n",
-				pCountryIe[0], pCountryIe[1]));
-
-	/*
-		hints a country IE as a regulatory domain "with" channel/power info.
-		but if you use regulatory_hint(), it only hint "regulatory domain".
-	*/
-/*	regulatory_hint_11d(pCfg80211_CB->pMac80211_Hw->wiphy, pCountryIe, CountryIeLen); */
-	regulatory_hint_11d(pCfg80211_CB->pCfg80211_Wdev->wiphy, pCountryIe, CountryIeLen);
-#endif /* LINUX_VERSION_CODE */
 }
 
 
@@ -3144,23 +2959,8 @@ BOOLEAN CFG80211OS_ChanInfoInit(
 	else
 		pChan->band = NL80211_BAND_2GHZ;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39))
-	pChan->center_freq = ieee80211_channel_to_frequency(ChanId);
-#else
 	pChan->center_freq = ieee80211_channel_to_frequency(ChanId, pChan->band);
-#endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-	if (FlgIsNMode == TRUE)
-	{
-		if (FlgIsBW20M == TRUE)
-			pChan->max_bandwidth = 20; /* 20MHz */
-		else
-			pChan->max_bandwidth = 40; /* 40MHz */
-	}
-	else
-		pChan->max_bandwidth = 5; /* 5MHz for non-HT device */
-#endif /* LINUX_VERSION_CODE */
 
 	/* no use currently in 2.6.30 */
 /*	if (ieee80211_is_beacon(((struct ieee80211_mgmt *)pFrame)->frame_control)) */
@@ -3194,19 +2994,14 @@ VOID CFG80211OS_Scaning(
 	IN BOOLEAN					FlgIsNMode,
 	IN UINT8					BW)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,30)
 #ifdef CONFIG_STA_SUPPORT
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
 	UINT32 IdChan;
 	UINT32 CenFreq;
 
 	/* get channel information */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39))
-	CenFreq = ieee80211_channel_to_frequency(ChanId);
-#else
 	CenFreq = ieee80211_channel_to_frequency(ChanId,
 		(ChanId<CFG80211_NUM_OF_CHAN_2GHZ)?NL80211_BAND_2GHZ:NL80211_BAND_5GHZ);
-#endif
 
 	for(IdChan=0; IdChan<MAX_NUM_OF_CHANNELS; IdChan++)
 	{
@@ -3231,7 +3026,6 @@ VOID CFG80211OS_Scaning(
 
 	CFG80211DBG(RT_DEBUG_TRACE, ("80211> cfg80211_inform_bss_frame\n"));
 #endif /* CONFIG_STA_SUPPORT */
-#endif /* LINUX_VERSION_CODE */
 }
 
 
@@ -3254,7 +3048,6 @@ VOID CFG80211OS_ScanEnd(
 	IN VOID *pCB,
 	IN BOOLEAN FlgIsAborted)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,30)
 #ifdef CONFIG_STA_SUPPORT
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
 
@@ -3262,7 +3055,6 @@ VOID CFG80211OS_ScanEnd(
 	CFG80211DBG(RT_DEBUG_ERROR, ("80211> cfg80211_scan_done\n"));
 	cfg80211_scan_done(pCfg80211_CB->pCfg80211_ScanReq, FlgIsAborted);
 #endif /* CONFIG_STA_SUPPORT */
-#endif /* LINUX_VERSION_CODE */
 }
 
 
@@ -3295,7 +3087,6 @@ void CFG80211OS_ConnectResultInform(
 	IN UINT32 RspIeLen,
 	IN UCHAR FlgIsSuccess)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
 
 
@@ -3321,7 +3112,6 @@ void CFG80211OS_ConnectResultInform(
 								WLAN_STATUS_UNSPECIFIED_FAILURE,
 								GFP_KERNEL);
 	}
-#endif /* LINUX_VERSION_CODE */
 }
 #endif /* RT_CFG80211_SUPPORT */
 
@@ -3786,13 +3576,8 @@ VOID RTMP_OS_Add_Timer(NDIS_MINIPORT_TIMER *pTimerOrg, ULONG timeout)
 	 pTimer = (OS_NDIS_MINIPORT_TIMER *) (pTimerOrg->pContent);
 
 	if (pTimer) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 		if (timer_pending(pTimer))
 			return;
-#else
-		if (timer_pending(&pTimer->t))
-			return;
-#endif
 
 		__RTMP_OS_Add_Timer(pTimer, timeout);
 	}

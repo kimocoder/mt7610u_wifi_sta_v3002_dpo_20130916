@@ -355,7 +355,6 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_BEACON {
         UINT32 beacon_head_len; /* Before TIM IE */
 		UINT32 beacon_tail_len; /* After TIM IE */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
 	UCHAR *beacon_ies;
 	UINT32 beacon_ies_len;
 	UCHAR *proberesp_ies;
@@ -370,7 +369,6 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_BEACON {
 	BOOLEAN privacy;
 	UCHAR auth_type;
 	INT32 inactivity_timeout;
-#endif
 } CMD_RTPRIV_IOCTL_80211_BEACON;
 
 typedef struct __CMD_RTPRIV_IOCTL_80211_CHAN {
