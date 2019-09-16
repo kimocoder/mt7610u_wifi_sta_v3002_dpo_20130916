@@ -110,10 +110,8 @@ static struct {
 	{"WPAPSK",						Set_WPAPSK_Proc},
 	{"ResetCounter",				Set_ResetStatCounter_Proc},
 	{"PSMode",                      Set_PSMode_Proc},
-#ifdef DBG
 	{"Debug",						Set_Debug_Proc},
 	{"DebugFunc",					Set_DebugFunc_Proc},
-#endif /* DBG */
 
 #ifdef TXBF_SUPPORT
 	{"TxBfTag",				        Set_TxBfTag_Proc},
@@ -606,11 +604,9 @@ INT Set_NetworkType_Proc(
 		INT ext_ch;
 
 #ifdef RT_CFG80211_SUPPORT
-#ifdef CONFIG_STA_SUPPORT
 		// This helps when doing rmmod in Monitor mode if it was switched from Managed mode in the past
 		DBGPRINT(RT_DEBUG_TRACE, ("MONITOR: LOST_AP_INFORM \n"));
 		RT_CFG80211_LOST_AP_INFORM(pAd);
-#endif
 #endif /* RT_CFG80211_SUPPORT */
 
 #ifdef MONITOR_FLAG_11N_SNIFFER_SUPPORT
@@ -3740,12 +3736,7 @@ INT RTMPQueryInformation(
                 pStatistics->FrameDuplicateCount.QuadPart = pAd->WlanCounters.FrameDuplicateCount.QuadPart;
                 pStatistics->ReceivedFragmentCount.QuadPart = pAd->WlanCounters.ReceivedFragmentCount.QuadPart;
                 pStatistics->MulticastReceivedFrameCount.QuadPart = pAd->WlanCounters.MulticastReceivedFrameCount.QuadPart;
-#ifdef DBG	
                 pStatistics->FCSErrorCount = pAd->RalinkCounters.RealFcsErrCount;
-#else
-                pStatistics->FCSErrorCount.QuadPart = pAd->WlanCounters.FCSErrorCount.QuadPart;
-                pStatistics->FrameDuplicateCount.u.LowPart = pAd->WlanCounters.FrameDuplicateCount.u.LowPart / 100;
-#endif
 			pStatistics->TransmittedFrameCount.QuadPart = pAd->WlanCounters.TransmittedFragmentCount.QuadPart;
 			pStatistics->WEPUndecryptableCount.QuadPart = pAd->WlanCounters.WEPUndecryptableCount.QuadPart;
                 wrq->u.data.length = sizeof(NDIS_802_11_STATISTICS);
@@ -4661,7 +4652,6 @@ INT RTMPQueryInformation(
 }
 
 
-#ifdef DBG
 /* 
     ==========================================================================
     Description:
@@ -5107,7 +5097,6 @@ LabelOK:
 }
 
 
-#endif /* DBG */
 
 
 #ifdef RT65xx
@@ -8015,11 +8004,9 @@ INT RTMP_STA_IoctlHandle(
 
 		case CMD_RTPRIV_IOCTL_ORI_DEV_TYPE_SET:
 			pAd->StaCfg.OriDevType = Data;
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CREDENTIAL_STORE
 	NdisAllocateSpinLock(pAd, &pAd->StaCtIf.Lock);
 #endif /* CREDENTIAL_STORE */
-#endif /* CONFIG_STA_SUPPORT */
 			
 			break;
 		case CMD_RTPRIV_IOCTL_STA_SCAN_SANITY_CHECK:

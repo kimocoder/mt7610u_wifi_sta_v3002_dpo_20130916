@@ -144,8 +144,6 @@ VOID WpaEAPOLStartAction(
     MAC_TABLE_ENTRY     *pEntry;
     PHEADER_802_11      pHeader;
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */    
 
     DBGPRINT(RT_DEBUG_TRACE, ("WpaEAPOLStartAction ===> \n"));
     
@@ -201,8 +199,6 @@ VOID WpaEAPOLKeyAction(
 	KEY_INFO			peerKeyInfo;
 	UINT				eapol_len;
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */   
 
     DBGPRINT(RT_DEBUG_TRACE, ("WpaEAPOLKeyAction ===>\n"));
 
@@ -403,7 +399,6 @@ VOID RTMPToWirelessSta(
 			RTMP_SET_PACKET_MOREDATA(pPacket, FALSE);
 		}
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/* send out the packet*/
@@ -426,7 +421,6 @@ VOID RTMPToWirelessSta(
 				}
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
   
     } while (FALSE);
 }
@@ -660,8 +654,6 @@ VOID WPAStart4WayHS(
 	PUINT8			pBssid = NULL;
 	UCHAR			group_cipher = Ndis802_11WEPDisabled;
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */  
 
     DBGPRINT(RT_DEBUG_TRACE, ("===> WPAStart4WayHS\n"));
 
@@ -778,7 +770,6 @@ VOID PeerPairMsg1Action(
     if (Elem->MsgLen < (LENGTH_802_11 + LENGTH_802_1_H + LENGTH_EAPOL_H + MIN_LEN_OF_EAPOL_KEY_MSG))
         return;
 	
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{				
 		{
@@ -789,7 +780,6 @@ VOID PeerPairMsg1Action(
 		rsnie_len = pAd->StaCfg.RSNIE_Len;
 	}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (pCurrentAddr == NULL)
 		return;
@@ -1037,7 +1027,6 @@ VOID PeerPairMsg3Action(
     if (Elem->MsgLen < (LENGTH_802_11 + LENGTH_802_1_H + LENGTH_EAPOL_H + MIN_LEN_OF_EAPOL_KEY_MSG))
 		return;
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{				
 		{
@@ -1046,7 +1035,6 @@ VOID PeerPairMsg3Action(
 
 	}	
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (pCurrentAddr == NULL)
 		return;
@@ -1095,7 +1083,6 @@ VOID PeerPairMsg3Action(
 	/* Update WpaState*/
 	pEntry->WpaState = AS_PTKINITDONE;	 	
 	/* Update pairwise key		*/
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		{
@@ -1107,7 +1094,6 @@ VOID PeerPairMsg3Action(
 		NdisMoveMemory(&pAd->SharedKey[BSS0][0], &pEntry->PairwiseKey, sizeof(CIPHER_KEY));
 	}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	/* open 802.1x port control and privacy filter*/
 	if (pEntry->AuthMode == Ndis802_11AuthModeWPA2PSK || 
@@ -1116,9 +1102,7 @@ VOID PeerPairMsg3Action(
 		pEntry->PortSecured = WPA_802_1X_PORT_SECURED;
 		pEntry->PrivacyFilter = Ndis802_11PrivFilterAcceptAll;	
 
-#ifdef CONFIG_STA_SUPPORT
 		STA_PORT_SECURED(pAd);
-#endif /* CONFIG_STA_SUPPORT */
 		DBGPRINT(RT_DEBUG_TRACE, ("PeerPairMsg3Action: AuthMode(%s) PairwiseCipher(%s) GroupCipher(%s) \n",
 									GetAuthMode(pEntry->AuthMode),
 									GetEncryptType(pEntry->WepStatus),
@@ -1335,14 +1319,12 @@ VOID	PeerGroupMsg1Action(
 	if ((!pEntry) || (!IS_ENTRY_CLIENT(pEntry) && !IS_ENTRY_APCLI(pEntry)))
         return;
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{				
 		pCurrentAddr = pAd->CurrentAddress;
 		group_cipher = pAd->StaCfg.GroupCipher;
 		default_key = pAd->StaCfg.DefaultKeyId;
 	}	
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (pCurrentAddr == NULL)
 		return;
@@ -1388,9 +1370,7 @@ VOID	PeerGroupMsg1Action(
 	pEntry->PortSecured = WPA_802_1X_PORT_SECURED;
 	pEntry->PrivacyFilter = Ndis802_11PrivFilterAcceptAll;
 
-#ifdef CONFIG_STA_SUPPORT
 	STA_PORT_SECURED(pAd);
-#endif /* CONFIG_STA_SUPPORT */
 	
 	DBGPRINT(RT_DEBUG_TRACE, ("PeerGroupMsg1Action: AuthMode(%s) PairwiseCipher(%s) GroupCipher(%s) \n",
 									GetAuthMode(pEntry->AuthMode),
@@ -1400,7 +1380,6 @@ VOID	PeerGroupMsg1Action(
 	/* init header and Fill Packet and send Msg 2 to authenticator	*/
 	MAKE_802_3_HEADER(Header802_3, pEntry->Addr, pCurrentAddr, EAPOL);	
 	
-#ifdef CONFIG_STA_SUPPORT
 	if ((pAd->OpMode == OPMODE_STA) && INFRA_ON(pAd) && 
 		OPSTATUS_TEST_FLAG(pAd, fOP_STATUS_MEDIA_STATE_CONNECTED) &&
 		RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_BSS_SCAN_IN_PROGRESS) &&
@@ -1410,7 +1389,6 @@ VOID	PeerGroupMsg1Action(
 		/* Now stop the scanning and need to send the rekey packet out */
 		pAd->MlmeAux.Channel = 0;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	RTMPToWirelessSta(pAd, pEntry, 
 					  Header802_3, sizeof(Header802_3), 
@@ -1476,12 +1454,10 @@ VOID MlmeDeAuthAction(
 
         DBGPRINT(RT_DEBUG_TRACE, ("Send DEAUTH frame with ReasonCode(%d) to %02x:%02x:%02x:%02x:%02x:%02x \n",Reason, PRINT_MAC(pEntry->Addr)));
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
         MgtMacHeaderInit(pAd, &DeAuthHdr, SUBTYPE_DEAUTH, 0, pEntry->Addr, pAd->CommonCfg.Bssid);	
 	}
-#endif /* CONFIG_STA_SUPPORT */
         MakeOutgoingFrame(pOutBuffer,               &FrameLen, 
                           sizeof(HEADER_802_11),    &DeAuthHdr,
                           2,                        &Reason,
@@ -2197,7 +2173,6 @@ static VOID RTMPMakeRsnIeCipher(
                 break;			
         }   
 
-#ifdef CONFIG_STA_SUPPORT
 		if ((pAd->OpMode == OPMODE_STA) &&
 			(pAd->StaCfg.GroupCipher != Ndis802_11Encryption2Enabled) &&
 			(pAd->StaCfg.GroupCipher != Ndis802_11Encryption3Enabled)
@@ -2214,7 +2189,6 @@ static VOID RTMPMakeRsnIeCipher(
 					break;
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 		/* swap for big-endian platform*/
 		pRsnie_cipher->version = cpu2le16(pRsnie_cipher->version);
@@ -2276,7 +2250,6 @@ static VOID RTMPMakeRsnIeCipher(
                 break;					
         }
 
-#ifdef CONFIG_STA_SUPPORT
 		if ((pAd->OpMode == OPMODE_STA) &&
 			(pAd->StaCfg.GroupCipher != Ndis802_11Encryption2Enabled) &&
 			(pAd->StaCfg.GroupCipher != Ndis802_11Encryption3Enabled)
@@ -2293,7 +2266,6 @@ static VOID RTMPMakeRsnIeCipher(
 					break;
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 		/* swap for big-endian platform*/
 		pRsnie_cipher->version = cpu2le16(pRsnie_cipher->version);
@@ -2421,9 +2393,7 @@ static VOID RTMPMakeRsnIeCap(
 	pRSN_Cap = (RSN_CAPABILITIES*)(pRsnIe + (*rsn_len));
 	
 
-#ifdef CONFIG_STA_SUPPORT
 
-#endif /* CONFIG_STA_SUPPORT */			      
 					 
 	pRSN_Cap->word = cpu2le16(pRSN_Cap->word);
 	
@@ -2534,7 +2504,6 @@ VOID RTMPMakeRSNIE(
 #endif /* APCLI_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 #ifdef WPA_SUPPLICANT_SUPPORT
@@ -2568,7 +2537,6 @@ VOID RTMPMakeRSNIE(
 			bMixCipher = pAd->StaCfg.bMixCipher;
 			break;
 		}
-#endif /* CONFIG_STA_SUPPORT */
 	} while(FALSE);
 
 	/* indicate primary RSNIE as WPA or WPA2*/
@@ -2988,7 +2956,6 @@ BOOLEAN RTMPParseEapolKeyData(
     } 
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{			
        {                        
@@ -3008,7 +2975,6 @@ BOOLEAN RTMPParseEapolKeyData(
 			}
         }            
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
  
@@ -3550,12 +3516,10 @@ PCIPHER_KEY RTMPSwCipherKeySelection(
 	}
 	else
 	{
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{				
 			CipherAlg = pAd->StaCfg.GroupCipher;
 		}	
-#endif /* CONFIG_STA_SUPPORT */		
 	}
 
 	if ((keyIdx = RTMPExtractKeyIdxFromIVHdr(pIV, CipherAlg)) > 3)
@@ -3575,8 +3539,6 @@ PCIPHER_KEY RTMPSwCipherKeySelection(
 		if (pRxBlk->pRxInfo->U2M)
 			pKey = &pEntry->PairwiseKey;
 		else {
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */	    	                
 		    	pKey = &pAd->SharedKey[pEntry->apidx][keyIdx];
         }
 	}

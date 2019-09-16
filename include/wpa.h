@@ -176,7 +176,7 @@
 
 #define WPA_BSSID(_pAd, _apidx) 	(_pAd)->ApCfg.MBSSID[_apidx].Bssid
 
-#elif defined(CONFIG_STA_SUPPORT)
+#else
 #define WPA_GET_BSS_NUM(_pAd)		1
 #define WPA_GET_GROUP_CIPHER(_pAd, _pEntry, _cipher)				\
 	{																\
@@ -403,8 +403,6 @@ VOID CalculateMIC(
 PSTRING GetEapolMsgType(
 	CHAR msg);
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 /* 
  =====================================	

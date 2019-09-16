@@ -249,7 +249,6 @@ EXPORT_SYMBOL(OS_NumOfPktFree);
 
 /* only for AP */
 
-#ifdef CONFIG_STA_SUPPORT
 EXPORT_SYMBOL(ralinkrate);
 EXPORT_SYMBOL(RT_RateSize);
 EXPORT_SYMBOL(send_monitor_packets);
@@ -267,7 +266,6 @@ EXPORT_SYMBOL(SendAssocIEsToWpaSupplicant);
 #ifdef WPA_SUPPLICANT_SUPPORT
 EXPORT_SYMBOL(WpaSendMicFailureToWpaSupplicant);
 #endif /* WPA_SUPPLICANT_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /* only for PCI */

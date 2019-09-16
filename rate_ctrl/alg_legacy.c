@@ -30,7 +30,6 @@
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	==========================================================================
 	Description:
@@ -875,7 +874,6 @@ VOID StaQuickResponeForRateUpExec(
 		/* RESET_ONE_SEC_TX_CNT(pEntry); */
 	}
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*
@@ -1060,7 +1058,6 @@ VOID MlmeOldRateAdapt(
 		}
 
 		/* Set timer for check in 100 msec */
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			if (!pAd->StaCfg.StaQuickResponeForRateUpTimerRunning)
@@ -1069,7 +1066,6 @@ VOID MlmeOldRateAdapt(
 				pAd->StaCfg.StaQuickResponeForRateUpTimerRunning = TRUE;
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 		/* Update PHY rate */
 		MlmeNewTxRate(pAd, pEntry);

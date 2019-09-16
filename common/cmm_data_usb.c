@@ -221,7 +221,6 @@ static VOID rlt_usb_update_txinfo(
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID ComposePsPoll(RTMP_ADAPTER *pAd)
 {
 	TXINFO_STRUC *pTxInfo;
@@ -256,7 +255,6 @@ VOID ComposePsPoll(RTMP_ADAPTER *pAd)
 	/* Append 4 extra zero bytes. */
 	pAd->PsPollContext.BulkOutSize = TXINFO_SIZE + TXWISize + TSO_SIZE + data_len + 4;
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /* IRQL = DISPATCH_LEVEL */
@@ -1285,7 +1283,6 @@ label_null:
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	========================================================================
 
@@ -1477,7 +1474,6 @@ VOID RT28xxUsbStaAsicSleepThenAutoWakeup(
 	OPSTATUS_SET_FLAG(pAd, fOP_STATUS_DOZE);
 
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 #endif /* RTMP_MAC_USB */
 

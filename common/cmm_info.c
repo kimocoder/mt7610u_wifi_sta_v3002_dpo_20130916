@@ -42,10 +42,8 @@ INT Set_DriverVersion_Proc(
 	IN	PSTRING			arg)
 {
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		DBGPRINT(RT_DEBUG_TRACE, ("Driver version-%s %s\n", STA_DRIVER_VERSION, STA_DRIVER_BUILD));
-#endif /* CONFIG_STA_SUPPORT */
 
     return TRUE;
 }
@@ -125,7 +123,6 @@ INT	Set_Cmm_WirelessMode_Proc(
 	if (success)
 	{
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/* clean up previous SCAN result */
@@ -141,7 +138,6 @@ INT	Set_Cmm_WirelessMode_Proc(
 				AsicEnableIbssSync(pAd);       /* copy to on-chip memory*/
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 
 	}
@@ -191,7 +187,6 @@ INT	Set_Channel_Proc(
 	/* check if this channel is valid*/
 	if (ChannelSanity(pAd, Channel) == TRUE)
 	{
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			pAd->CommonCfg.Channel = Channel;
@@ -218,17 +213,14 @@ INT	Set_Channel_Proc(
 							pAd->CommonCfg.CentralChannel));
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 		success = TRUE;
 	}
 	else
 	{
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		success = FALSE;
 		DBGPRINT(RT_DEBUG_WARN,("This channel is out of channel list, nothing to do!\n "));
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 
@@ -280,13 +272,11 @@ INT	Set_TxPower_Proc(
 	if (TxPower <= 100)
 	{
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			pAd->CommonCfg.TxPowerDefault = TxPower;
 			pAd->CommonCfg.TxPowerPercentage = pAd->CommonCfg.TxPowerDefault;
 		}
-#endif /* CONFIG_STA_SUPPORT */
 		success = TRUE;
 	}
 	else
@@ -351,24 +341,18 @@ INT	Set_TxPreamble_Proc(
 	{
 		case Rt802_11PreambleShort:
 			pAd->CommonCfg.TxPreamble = Preamble;
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				MlmeSetTxPreamble(pAd, Rt802_11PreambleShort);
-#endif /* CONFIG_STA_SUPPORT */
 			break;
 		case Rt802_11PreambleLong:
-#ifdef CONFIG_STA_SUPPORT
 		case Rt802_11PreambleAuto:
 			/* 
 				If user wants AUTO, initialize to LONG here, then change according to AP's
 				capability upon association
 			*/
-#endif /* CONFIG_STA_SUPPORT */
 			pAd->CommonCfg.TxPreamble = Preamble;
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				MlmeSetTxPreamble(pAd, Rt802_11PreambleLong);
-#endif /* CONFIG_STA_SUPPORT */
 			break;
 		default: /*Invalid argument */
 			return FALSE;
@@ -397,10 +381,8 @@ INT	Set_RTSThreshold_Proc(
 
 	if((RtsThresh > 0) && (RtsThresh <= MAX_RTS_THRESHOLD))
 		pAd->CommonCfg.RtsThreshold  = (USHORT)RtsThresh;
-#ifdef CONFIG_STA_SUPPORT
 	else if (RtsThresh == 0)
 		pAd->CommonCfg.RtsThreshold = MAX_RTS_THRESHOLD;
-#endif /* CONFIG_STA_SUPPORT */
 	else
 		return FALSE; /*Invalid argument */
 
@@ -444,7 +426,6 @@ INT	Set_FragThreshold_Proc(
 		pAd->CommonCfg.FragmentThreshold = (USHORT)FragThresh;
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		if (pAd->CommonCfg.FragmentThreshold == MAX_FRAG_THRESHOLD)
@@ -452,7 +433,6 @@ INT	Set_FragThreshold_Proc(
 		else
 			pAd->CommonCfg.bUseZeroToDisableFragment = FALSE;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	DBGPRINT(RT_DEBUG_TRACE, ("Set_FragThreshold_Proc::(FragThreshold=%d)\n", pAd->CommonCfg.FragmentThreshold));
 
@@ -1042,7 +1022,6 @@ INT Set_ChannelListDel_Proc(
 #endif /* EXT_BUILD_CHANNEL_LIST  */
 
 
-#ifdef DBG
 /* 
     ==========================================================================
     Description:
@@ -1085,7 +1064,6 @@ INT	Set_DebugFunc_Proc(
 
 	return TRUE;
 }
-#endif
 
 
 INT	Show_DescInfo_Proc(
@@ -1174,7 +1152,6 @@ BOOLEAN RTMPCheckStrPrintAble(
 		
 	========================================================================
 */
-#ifdef CONFIG_STA_SUPPORT
 VOID    RTMPSetDesiredRates(
     IN  PRTMP_ADAPTER   pAdapter,
     IN  LONG            Rates)
@@ -1323,9 +1300,7 @@ VOID    RTMPSetDesiredRates(
     /* Changing DesiredRate may affect the MAX TX rate we used to TX frames out*/
     MlmeUpdateTxRates(pAdapter, FALSE, 0);
 }
-#endif /* CONFIG_STA_SUPPORT */
 
-#if defined(CONFIG_STA_SUPPORT) || defined(APCLI_WPA_SUPPLICANT_SUPPORT)
 NDIS_STATUS RTMPWPARemoveKeyProc(
 	IN	PRTMP_ADAPTER	pAd,
 	IN	PVOID			pBuf)
@@ -1391,7 +1366,6 @@ NDIS_STATUS RTMPWPARemoveKeyProc(
 #endif/*APCLI_WPA_SUPPLICANT_SUPPORT*/
 #endif/*APCLI_SUPPORT*/
 			{
-#ifdef CONFIG_STA_SUPPORT
 				if (MAC_ADDR_EQUAL(pAd->SharedKey[BSS0][i].BssId, pKey->BSSID))
 				{
 					DBGPRINT(RT_DEBUG_TRACE,("RTMPWPARemoveKeyProc(KeyIdx=%d)\n", i));
@@ -1401,7 +1375,6 @@ NDIS_STATUS RTMPWPARemoveKeyProc(
 					Status = NDIS_STATUS_SUCCESS;
 					break;
 				}
-#endif/*CONFIG_STA_SUPPORT*/
 			}
 		}
 	}
@@ -1419,10 +1392,8 @@ NDIS_STATUS RTMPWPARemoveKeyProc(
 
 	return (Status);
 }
-#endif /* defined(CONFIG_STA_SUPPORT) || defined(APCLI_WPA_SUPPLICANT_SUPPORT) */
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	========================================================================
 	
@@ -1480,7 +1451,6 @@ VOID	RTMPWPARemoveAllKeys(
 #endif /* PCIE_PS_SUPPORT */
 
 }
-#endif /* CONFIG_STA_SUPPORT */	
 
 
 /*
@@ -1522,10 +1492,8 @@ VOID RTMPSetPhyMode(
 
 	if (i == pAd->ChannelListNum)
 	{
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			pAd->CommonCfg.Channel = FirstChannel(pAd);
-#endif /* CONFIG_STA_SUPPORT */
 		DBGPRINT(RT_DEBUG_ERROR, ("RTMPSetPhyMode: channel is out of range, use first channel=%d \n", pAd->CommonCfg.Channel));
 	}
 	
@@ -1657,7 +1625,6 @@ VOID	RTMPAddWcidAttributeEntry(
 	USHORT		Wcid = 0;
 
 	{
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			if (BssIdx > BSS0)
@@ -1676,13 +1643,11 @@ VOID	RTMPAddWcidAttributeEntry(
 			else
 				Wcid = MCAST_WCID;
 		}
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 	/* Update WCID attribute table*/
 	offset = MAC_WCID_ATTRIBUTE_BASE + (Wcid * HW_WCID_ATTRI_SIZE);
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		if (pEntry && IS_ENTRY_MESH(pEntry))
@@ -1697,7 +1662,6 @@ VOID	RTMPAddWcidAttributeEntry(
 		else
 		WCIDAttri = (CipherAlg<<1) | SHAREDKEYTABLE;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 		
 	RTMP_IO_WRITE32(pAd, offset, WCIDAttri);
 
@@ -1804,8 +1768,6 @@ PSTRING GetAuthMode(CHAR auth)
 */
 #define	LINE_LEN	(4+33+20+23+9+7+7+3)	/* Channel+SSID+Bssid+Security+Signal+WiressMode+ExtCh+NetworkType*/
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 VOID	RTMPCommSiteSurveyData(
 	IN  PSTRING		msg,
 	IN  PBSS_ENTRY	pBss,
@@ -1992,7 +1954,6 @@ VOID	RTMPCommSiteSurveyData(
 	return;
 }
 
-#if defined (AP_SCAN_SUPPORT) || defined (CONFIG_STA_SUPPORT)
 VOID RTMPIoctlGetSiteSurvey(
 	IN	PRTMP_ADAPTER	pAdapter, 
 	IN	RTMP_IOCTL_INPUT_STRUCT	*wrq)
@@ -2005,8 +1966,6 @@ VOID RTMPIoctlGetSiteSurvey(
 	PBSS_ENTRY	pBss;
 	UINT32 TotalLen, BufLen = IW_SCAN_MAX_DATA;
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 	TotalLen = sizeof(CHAR)*((MAX_LEN_OF_BSS_TABLE)*max_len) + 100;
 
@@ -2030,13 +1989,9 @@ VOID RTMPIoctlGetSiteSurvey(
 	    "Ch", "SSID", "BSSID", "Security", "Siganl(%)", "W-Mode", " ExtCH"," NT");	
 
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 	WaitCnt = 0;
-#ifdef CONFIG_STA_SUPPORT
 	pAdapter->StaCfg.bSkipAutoScanConn = TRUE;
-#endif /* CONFIG_STA_SUPPORT */
 
 	while ((ScanRunning(pAdapter) == TRUE) && (WaitCnt++ < 200))
 		OS_WAIT(500);	
@@ -2055,20 +2010,15 @@ VOID RTMPIoctlGetSiteSurvey(
 		RTMPCommSiteSurveyData(msg, pBss, TotalLen);
 		
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	pAdapter->StaCfg.bSkipAutoScanConn = FALSE;
-#endif /* CONFIG_STA_SUPPORT */
 	wrq->u.data.length = strlen(msg);
 	Status = copy_to_user(wrq->u.data.pointer, msg, wrq->u.data.length);
 
 	DBGPRINT(RT_DEBUG_TRACE, ("RTMPIoctlGetSiteSurvey - wrq->u.data.length = %d\n", wrq->u.data.length));
 	os_free_mem(NULL, (PUCHAR)msg);	
 }
-#endif
 
 
 
@@ -2402,9 +2352,7 @@ INT	Set_HtMcs_Proc(
 	IN	PSTRING			arg)
 {
 	ULONG HtMcs, Mcs_tmp, ValidMcs = 15;
-#ifdef CONFIG_STA_SUPPORT    
     BOOLEAN bAutoRate = FALSE;
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef DOT11N_SS3_SUPPORT
 	if (pAd->CommonCfg.TxStream >= 3)
@@ -2418,7 +2366,6 @@ INT	Set_HtMcs_Proc(
 	else
 		HtMcs = MCS_AUTO;	
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		pAd->StaCfg.DesiredTransmitSetting.field.MCS = HtMcs;
@@ -2454,7 +2401,6 @@ INT	Set_HtMcs_Proc(
         if (ADHOC_ON(pAd))
             return TRUE;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	SetCommonHT(pAd);
 	
@@ -3037,10 +2983,8 @@ INT	Set_FixedTxMode_Proc(RTMP_ADAPTER *pAd, PSTRING arg)
 	INT	fix_tx_mode = RT_CfgSetFixedTxPhyMode(arg);
 
 	
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		pAd->StaCfg.DesiredTransmitSetting.field.FixedTxMode = fix_tx_mode;
-#endif /* CONFIG_STA_SUPPORT */
 	
 	DBGPRINT(RT_DEBUG_TRACE, ("%s():(FixedTxMode=%d)\n",
 								__FUNCTION__, fix_tx_mode));
@@ -3658,14 +3602,12 @@ INT	Show_SSID_Proc(
 
 	NdisZeroMemory(&ssid_str[0], 33);
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		NdisMoveMemory(&ssid_str[0], 
 						pAd->CommonCfg.Ssid,
 						pAd->CommonCfg.SsidLen);
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	snprintf(pBuf, BufLen, "\t%s", ssid_str);
 	return 0;
@@ -3841,10 +3783,8 @@ INT	Show_HtMcs_Proc(
 	IN	ULONG			BufLen)
 {
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		snprintf(pBuf, BufLen, "\t%u", pAd->StaCfg.DesiredTransmitSetting.field.MCS);
-#endif /* CONFIG_STA_SUPPORT */
 	return 0;
 }
 
@@ -4000,10 +3940,8 @@ INT	Show_WmmCapable_Proc(
 	IN	ULONG			BufLen)
 {
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		snprintf(pBuf, BufLen, "\t%s", pAd->CommonCfg.bWmmCapable ? "TRUE":"FALSE");
-#endif /* CONFIG_STA_SUPPORT */
 	
 	return 0;
 }
@@ -4018,7 +3956,6 @@ INT	Show_IEEE80211H_Proc(
 	return 0;
 }
 
-#ifdef CONFIG_STA_SUPPORT
 INT	Show_NetworkType_Proc(
 	IN	PRTMP_ADAPTER	pAd, 
 	OUT	PSTRING			pBuf,
@@ -4074,7 +4011,6 @@ INT	Show_AutoReconnect_Proc(
 	return 0;
 }
 
-#endif /* CONFIG_STA_SUPPORT */
 
 INT	Show_AuthMode_Proc(
 	IN	PRTMP_ADAPTER	pAd, 
@@ -4083,10 +4019,8 @@ INT	Show_AuthMode_Proc(
 {
 	NDIS_802_11_AUTHENTICATION_MODE	AuthMode = Ndis802_11AuthModeOpen; 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		AuthMode = pAd->StaCfg.AuthMode;
-#endif /* CONFIG_STA_SUPPORT */
 
 	if ((AuthMode >= Ndis802_11AuthModeOpen) && 
 		(AuthMode <= Ndis802_11AuthModeWPA1PSKWPA2PSK))
@@ -4104,10 +4038,8 @@ INT	Show_EncrypType_Proc(
 {
 	NDIS_802_11_WEP_STATUS	WepStatus = Ndis802_11WEPDisabled;
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		WepStatus = pAd->StaCfg.WepStatus;
-#endif /* CONFIG_STA_SUPPORT */
 
 	if ((WepStatus >= Ndis802_11WEPEnabled) && 
 		(WepStatus <= Ndis802_11Encryption4KeyAbsent))
@@ -4125,10 +4057,8 @@ INT	Show_DefaultKeyID_Proc(
 {
 	UCHAR DefaultKeyId = 0;
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		DefaultKeyId = pAd->StaCfg.DefaultKeyId;
-#endif /* CONFIG_STA_SUPPORT */
 
 	snprintf(pBuf, BufLen, "\t%d", DefaultKeyId);
 
@@ -4205,10 +4135,8 @@ INT	Show_PMK_Proc(
 	UCHAR	PMK[32] = {0};
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		NdisMoveMemory(PMK, pAd->StaCfg.PMK, 32);
-#endif /* CONFIG_STA_SUPPORT */
 	
     sprintf(pBuf, "\tPMK = ");
     for (idx = 0; idx < 32; idx++)
@@ -5981,7 +5909,6 @@ static struct {
 	PSTRING name;
 	INT (*show_proc)(PRTMP_ADAPTER pAdapter, PSTRING arg, ULONG BufLen);
 } *PRTMP_PRIVATE_STA_SHOW_CFG_VALUE_PROC, RTMP_PRIVATE_STA_SHOW_CFG_VALUE_PROC[] = {
-#ifdef DBG
 	{"SSID",					Show_SSID_Proc}, 
 	{"WirelessMode",			Show_WirelessMode_Proc},       
 	{"TxBurst",					Show_TxBurst_Proc},
@@ -6014,11 +5941,9 @@ static struct {
 	{"WmmCapable",				Show_WmmCapable_Proc},         
 #endif         
 	{"IEEE80211H",				Show_IEEE80211H_Proc},
-#ifdef CONFIG_STA_SUPPORT	
     {"NetworkType",				Show_NetworkType_Proc},        
 	{"WPAPSK",					Show_WPAPSK_Proc},
 	{"AutoReconnect", 			Show_AutoReconnect_Proc},
-#endif /* CONFIG_STA_SUPPORT */
 	{"AuthMode",				Show_AuthMode_Proc},           
 	{"EncrypType",				Show_EncrypType_Proc},         
 	{"DefaultKeyID",			Show_DefaultKeyID_Proc},       
@@ -6030,7 +5955,6 @@ static struct {
 #ifdef SINGLE_SKU
 	{"ModuleTxpower",			Show_ModuleTxpower_Proc},
 #endif /* SINGLE_SKU */
-#endif /* DBG */
 	{"rainfo",					Show_STA_RAInfo_Proc},
 	{NULL, NULL}
 };

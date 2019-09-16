@@ -715,7 +715,6 @@ VOID asic_mcs_lut_update(RTMP_ADAPTER *pAd, MAC_TABLE_ENTRY *pEntry)
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID MlmeSetTxRate(
 	IN RTMP_ADAPTER *pAd,
 	IN MAC_TABLE_ENTRY *pEntry,
@@ -905,7 +904,6 @@ VOID MlmeSetTxRate(
 #endif /* MCS_LUT_SUPPORT */
 
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 VOID MlmeSelectTxRateTable(
@@ -973,7 +971,6 @@ VOID MlmeSelectTxRateTable(
 		}
 #endif /* DOT11_VHT_AC */
 
-#ifdef CONFIG_STA_SUPPORT
 		if ((pAd->OpMode == OPMODE_STA) && ADHOC_ON(pAd))
 		{
 			/* for ADHOC mode */
@@ -1038,7 +1035,6 @@ VOID MlmeSelectTxRateTable(
 				*ppTable = RateSwitchTable11G;
 			break;
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef DOT11_N_SUPPORT
 		/*if ((pAd->StaActive.SupRateLen + pAd->StaActive.ExtRateLen == 12) && (pAd->StaActive.SupportedPhyInfo.MCSSet[0] == 0xff) &&*/
@@ -1300,7 +1296,6 @@ VOID MlmeSelectTxRateTable(
 #ifdef DOT11_N_SUPPORT
 #endif /* DOT11_N_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 #ifdef DOT11_N_SUPPORT
@@ -1390,7 +1385,6 @@ VOID MlmeSelectTxRateTable(
 						pAd->StaActive.SupportedPhyInfo.MCSSet[0],
 						pAd->StaActive.SupportedPhyInfo.MCSSet[1]));
 		}
-#endif /* CONFIG_STA_SUPPORT */
 	} while(FALSE);
 
 	*pTableSize = RATE_TABLE_SIZE(*ppTable);
@@ -1961,12 +1955,10 @@ VOID MlmeNewTxRate(RTMP_ADAPTER *pAd, MAC_TABLE_ENTRY *pEntry)
 		pNextTxRate = PTX_RA_LEGACY_ENTRY(pTable, pEntry->CurrTxRateIndex);
 
 	/*  Set new rate */
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		MlmeSetTxRate(pAd, pEntry, pNextTxRate);
 	}
-#endif /*  CONFIG_STA_SUPPORT */
 
 #ifdef DOT11_N_SUPPORT
 	/*  Disable invalid HT Duplicate modes to prevent PHY error */
@@ -2142,10 +2134,8 @@ VOID RTMPSetSupportMCS(
 		UCHAR j, bitmask;
 		CHAR i;
 
-#ifdef CONFIG_STA_SUPPORT
 		if (OpMode == OPMODE_STA)
 			pDesired_ht_phy = &pAd->StaCfg.DesiredHtPhyInfo;
-#endif /* CONFIG_STA_SUPPORT */
 
 
 		if (pDesired_ht_phy == NULL)

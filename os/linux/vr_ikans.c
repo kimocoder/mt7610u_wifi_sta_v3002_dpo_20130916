@@ -233,12 +233,10 @@ static INT32 GetSpecInfoIdxFromBssid(
 	INT32 IfIdx = MAIN_MBSSID;
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		IfIdx = MAIN_MBSSID;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return IfIdx; /* return one of MBSS */
 }
@@ -265,12 +263,10 @@ static INT32 GetSpecInfoIdxFromBssid(
 	INT32 IfIdx = MAIN_MBSSID;
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		IfIdx = MAIN_MBSSID;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return IfIdx; /* return one of MBSS */
 } /* End of GetSpecInfoIdxFromBssid */

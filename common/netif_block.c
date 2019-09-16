@@ -135,12 +135,10 @@ VOID StopNetIfQueue(
 	/* WMM support 4 software queues.*/
 	/* One software queue full doesn't mean device have no capbility to transmit packet.*/
 	/* So disable block Net-If queue function while WMM enable.*/
-#ifdef CONFIG_STA_SUPPORT
 	{
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		valid = (pAd->CommonCfg.bWmmCapable == TRUE) ? FALSE : TRUE;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (valid)
 		blockNetIf(&pAd->blockQueueTab[QueIdx], NetDev);

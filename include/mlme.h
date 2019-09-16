@@ -30,8 +30,6 @@
 
 #include "rtmp_dot11.h"
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 #include "wpa_cmm.h"
 
 
@@ -51,9 +49,7 @@
 #define MLME_TASK_EXEC_MULTIPLE       10  /*5*/       /* MLME_TASK_EXEC_MULTIPLE * MLME_TASK_EXEC_INTV = 1 sec */
 #define REORDER_EXEC_INTV         	100       /* 0.1 sec */
 #ifdef RTMP_MAC_USB
-#ifdef CONFIG_STA_SUPPORT
 #define STAY_10_SECONDS_AWAKE        100/* */
-#endif /* CONFIG_STA_SUPPORT */
 #endif /* RTMP_MAC_USB */
 /*#define TBTT_PRELOAD_TIME         384        // usec. LomgPreamble + 24-byte at 1Mbps */
 
@@ -81,9 +77,7 @@
 #define AUTO_WAKEUP_TIMEOUT			70			/*unit: msec */
 
 
-#ifdef CONFIG_STA_SUPPORT
 #define CW_MAX_IN_BITS              10        /* actual CwMax = 2^CW_MAX_IN_BITS - 1 */
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
 extern UINT32 CW_MAX_IN_BITS;
@@ -121,9 +115,7 @@ extern UINT32 CW_MAX_IN_BITS;
 #define BSS_NOT_FOUND                    0xFFFFFFFF
 
 
-#ifdef CONFIG_STA_SUPPORT
 #define MAX_LEN_OF_MLME_QUEUE            40 /*10 */
-#endif /* CONFIG_STA_SUPPORT */
 
 enum SCAN_MODE{
 	/* Active scan, send probe request, and wait beacon and probe response */
@@ -1119,12 +1111,10 @@ typedef struct {
     UCHAR       EdcaUpdateCount;
 } QOS_CAPABILITY_PARM, *PQOS_CAPABILITY_PARM;
 
-#ifdef CONFIG_STA_SUPPORT
 typedef struct {
     UCHAR       IELen;
     UCHAR       IE[MAX_CUSTOM_LEN];
 } WPA_IE_;
-#endif /* CONFIG_STA_SUPPORT */
 
 
 typedef struct {
@@ -1203,7 +1193,6 @@ typedef struct {
 
 
 
-#ifdef CONFIG_STA_SUPPORT
     WPA_IE_     WpaIE;
     WPA_IE_     RsnIE;
 	WPA_IE_ 	WpsIE;
@@ -1212,7 +1201,6 @@ typedef struct {
 	UCHAR		CountryString[3];
 	BOOLEAN		bHasCountryIE;
 #endif /* EXT_BUILD_CHANNEL_LIST */
-#endif /* CONFIG_STA_SUPPORT */
 
 	UCHAR   MacAddr[MAC_ADDR_LEN];
 	ULONG ClientStatusFlags;
@@ -1324,8 +1312,6 @@ typedef struct _MLME_AUX {
     RALINK_TIMER_STRUCT AuthTimer;
     RALINK_TIMER_STRUCT AssocTimer, ReassocTimer, DisassocTimer;
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 } MLME_AUX, *PMLME_AUX;
 
@@ -1388,7 +1374,6 @@ typedef struct _MLME_START_REQ_STRUCT {
     UCHAR       SsidLen;
 } MLME_START_REQ_STRUCT, *PMLME_START_REQ_STRUCT;
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef QOS_DLS_SUPPORT
 /* structure for DLS */
 typedef struct _RT_802_11_DLS {
@@ -1409,7 +1394,6 @@ typedef struct _MLME_DLS_REQ_STRUCT {
     USHORT			Reason;
 } MLME_DLS_REQ_STRUCT, *PMLME_DLS_REQ_STRUCT;
 #endif /* QOS_DLS_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 
 typedef struct GNU_PACKED _EID_STRUCT{
     UCHAR   Eid;

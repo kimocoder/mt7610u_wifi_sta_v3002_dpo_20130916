@@ -1155,7 +1155,6 @@ NTSTATUS CheckGPIOHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 		}
 #endif /* RALINK_ATE */
 
-#ifdef CONFIG_STA_SUPPORT
 
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
@@ -1195,7 +1194,6 @@ NTSTATUS CheckGPIOHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 			}
 		} /* end IF_DEV_CONFIG_OPMODE_ON_STA*/
 
-#endif /* CONFIG_STA_SUPPORT */
 
 	return NDIS_STATUS_SUCCESS;
 }
@@ -1376,13 +1374,11 @@ static NTSTATUS ResetBulkInHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 
 	DBGPRINT_RAW(RT_DEBUG_TRACE, ("CmdThread : CMDTHREAD_RESET_BULK_IN === >\n"));
 
-#ifdef CONFIG_STA_SUPPORT
 	if(RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_IDLE_RADIO_OFF))
 	{
 		RTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_BULKIN_RESET);
 		return NDIS_STATUS_SUCCESS;
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef RALINK_ATE
 	if (ATE_ON(pAd))
@@ -1610,13 +1606,11 @@ static NTSTATUS SetAsicPairwiseKeyHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQel
 	return NDIS_STATUS_SUCCESS;
 }
 
-#ifdef CONFIG_STA_SUPPORT
 static NTSTATUS SetPortSecuredHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 {
 	STA_PORT_SECURED(pAd);
 	return NDIS_STATUS_SUCCESS;
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 static NTSTATUS RemovePairwiseKeyHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
@@ -1654,7 +1648,6 @@ static NTSTATUS UpdateProtectHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 static NTSTATUS SetPSMBitHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 {
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
@@ -1703,7 +1696,6 @@ NTSTATUS QkeriodicExecutHdlr(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQelmt)
 	StaQuickResponeForRateUpExec(NULL, pAd, NULL, NULL);
 	return NDIS_STATUS_SUCCESS;
 }
-#endif /* CONFIG_STA_SUPPORT*/
 
 
 
@@ -1791,17 +1783,10 @@ static CMDHdlr CMDHdlrTable[] = {
 	DelAsicWcidHdlr,					/* CMDTHREAD_DEL_ASIC_WCID*/
 	SetClientMACEntryHdlr,			/* CMDTHREAD_SET_CLIENT_MAC_ENTRY*/
 
-#ifdef CONFIG_STA_SUPPORT
 	SetPSMBitHdlr,					/* CMDTHREAD_SET_PSM_BIT*/
 	ForceWakeUpHdlr,				/* CMDTHREAD_FORCE_WAKE_UP*/
 	ForceSleepAutoWakeupHdlr,		/* CMDTHREAD_FORCE_SLEEP_AUTO_WAKEUP*/
 	QkeriodicExecutHdlr,				/* CMDTHREAD_QKERIODIC_EXECUT*/
-#else
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-#endif /* CONFIG_STA_SUPPORT */
 
 	NULL,
 	NULL,
@@ -1826,11 +1811,7 @@ static CMDHdlr CMDHdlrTable[] = {
 	SetAsicPairwiseKeyHdlr,			/* CMDTHREAD_SET_ASIC_PAIRWISE_KEY*/
 	RemovePairwiseKeyHdlr,			/* CMDTHREAD_REMOVE_PAIRWISE_KEY*/
 
-#ifdef CONFIG_STA_SUPPORT
 	SetPortSecuredHdlr,				/* CMDTHREAD_SET_PORT_SECURED*/
-#else
-	NULL,
-#endif /* CONFIG_STA_SUPPORT */
 
 	NULL,
 
@@ -1947,10 +1928,8 @@ VOID RTUSBWatchDog(IN RTMP_ADAPTER *pAd)
 	if(RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST))
 		return;
 
-#ifdef CONFIG_STA_SUPPORT
 	if(RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_IDLE_RADIO_OFF))
 		return;
-#endif /* CONFIG_STA_SUPPORT */
 
 	idx = 0;
 	RTMP_IO_READ32(pAd, TXRXQ_PCNT, &MACValue);

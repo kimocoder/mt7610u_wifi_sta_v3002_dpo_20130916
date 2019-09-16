@@ -1016,7 +1016,6 @@ VOID MlmeNewRateAdapt(
 		}
 
 		/*  Set timer for check in 100 msec */
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			if (!pAd->StaCfg.StaQuickResponeForRateUpTimerRunning)
@@ -1025,7 +1024,6 @@ VOID MlmeNewRateAdapt(
 				pAd->StaCfg.StaQuickResponeForRateUpTimerRunning = TRUE;
 			}
 		}
-#endif /*  CONFIG_STA_SUPPORT */
 
 		/*  Update PHY rate */
 		MlmeNewTxRate(pAd, pEntry);
@@ -1035,7 +1033,6 @@ VOID MlmeNewRateAdapt(
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID StaQuickResponeForRateUpExecAdapt(
 	IN PRTMP_ADAPTER	pAd,
 	IN ULONG i,
@@ -1537,7 +1534,6 @@ VOID MlmeDynamicTxRateSwitchingAdapt(
 		eTxBFProbing(pAd, pEntry);
 #endif /* TXBF_SUPPORT */
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*

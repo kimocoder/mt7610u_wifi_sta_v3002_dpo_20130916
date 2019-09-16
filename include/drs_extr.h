@@ -284,7 +284,6 @@ INT Set_RateTable_Proc(
 	IN  PSTRING arg);
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID StaQuickResponeForRateUpExecAdapt(
 	IN struct _RTMP_ADAPTER *pAd,
 	IN ULONG i,
@@ -296,11 +295,9 @@ VOID MlmeDynamicTxRateSwitchingAdapt(
 	IN ULONG TxSuccess,
 	IN ULONG TxRetransmit,
 	IN ULONG TxFailCount);
-#endif /* CONFIG_STA_SUPPORT */
 #endif /* NEW_RATE_ADAPT_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID MlmeDynamicTxRateSwitching(
 	IN struct _RTMP_ADAPTER *pAd);
 
@@ -314,7 +311,6 @@ VOID MlmeSetTxRate(
 	IN struct _RTMP_ADAPTER *pAd,
 	IN struct _MAC_TABLE_ENTRY *pEntry,
 	IN RTMP_RA_LEGACY_TB *pTxRate);
-#endif /* CONFIG_STA_SUPPORT */
 
 VOID MlmeRAInit(struct _RTMP_ADAPTER *pAd, struct _MAC_TABLE_ENTRY *pEntry);
 VOID MlmeNewTxRate(struct _RTMP_ADAPTER *pAd, struct _MAC_TABLE_ENTRY *pEntry);

@@ -39,17 +39,14 @@
 #endif /* LINUX */
 
 
-#ifdef CONFIG_STA_SUPPORT
 #define RT_PRIV_IOCTL							(SIOCIWFIRSTPRIV + 0x01) /* Sync. with AP for wsc upnp daemon */
 #define RTPRIV_IOCTL_SET							(SIOCIWFIRSTPRIV + 0x02)
 
-#ifdef DBG
 #define RTPRIV_IOCTL_BBP                            (SIOCIWFIRSTPRIV + 0x03)
 #define RTPRIV_IOCTL_MAC                            (SIOCIWFIRSTPRIV + 0x05)
 
 #define RTPRIV_IOCTL_RF                             (SIOCIWFIRSTPRIV + 0x13)  /* edit by johnli, fix read rf register problem */
 #define RTPRIV_IOCTL_E2P                            (SIOCIWFIRSTPRIV + 0x07)
-#endif /* DBG */
 
 #define RTPRIV_IOCTL_ATE							(SIOCIWFIRSTPRIV + 0x08)
 
@@ -64,7 +61,6 @@
 #define RTPRIV_IOCTL_SHOW							(SIOCIWFIRSTPRIV + 0x11)
 
 
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #endif /* _RT_OS_H_ */

@@ -706,19 +706,16 @@ void wlan_802_11_to_802_3_packet(
 
 	/* copy 802.3 header */
 
-#ifdef CONFIG_STA_SUPPORT
 	RT_CONFIG_IF_OPMODE_ON_STA(OpMode)
 	{
 	    NdisMoveMemory(skb_push(pOSPkt, LENGTH_802_3), pHeader802_3, LENGTH_802_3);
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 }
 
 
 void hex_dump(char *str, UCHAR *pSrcBufVA, UINT SrcBufLen)
 {
-#ifdef DBG
 	unsigned char *pt;
 	int x;
 
@@ -735,7 +732,6 @@ void hex_dump(char *str, UCHAR *pSrcBufVA, UINT SrcBufLen)
 			printk("\n");
 	}
 	printk("\n");
-#endif /* DBG */
 }
 
 #ifdef SYSTEM_LOG_SUPPORT
@@ -780,7 +776,6 @@ VOID RtmpOsSendWirelessEvent(
 #endif /* SYSTEM_LOG_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 INT32 ralinkrate[] = {
 	2,  4, 11, 22, 
 	12, 18, 24, 36, 48, 72, 96, 108, 109, 110, 111, 112, /* CCK and OFDM */
@@ -1044,7 +1039,6 @@ void send_monitor_packets(IN PNET_DEV pNetDev,
 	return;
 
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*******************************************************************************
@@ -1393,7 +1387,6 @@ int RtmpOSNetDevAddrSet(
 	net_dev = pNetDev;
 /*	GET_PAD_FROM_NET_DEV(pAd, net_dev); */
 
-#ifdef CONFIG_STA_SUPPORT
 	/* work-around for the SuSE due to it has it's own interface name management system. */
 	RT_CONFIG_IF_OPMODE_ON_STA(OpMode) {
 /*		NdisZeroMemory(pAd->StaCfg.dev_name, 16); */
@@ -1403,7 +1396,6 @@ int RtmpOSNetDevAddrSet(
 			NdisMoveMemory(dev_name, net_dev->name, strlen(net_dev->name));
 		}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	NdisMoveMemory(net_dev->dev_addr, pMacAddr, 6);
 
@@ -1646,14 +1638,12 @@ int RtmpOSNetDevAttach(
 		pNetDev->get_wireless_stats = pDevOpHook->get_wstats;
 #endif
 
-#ifdef CONFIG_STA_SUPPORT
 #if WIRELESS_EXT >= 12
 		if (OpMode == OPMODE_STA) {
 /*			pNetDev->wireless_handlers = &rt28xx_iw_handler_def; */
 			pNetDev->wireless_handlers = pDevOpHook->iw_handler;
 		}
 #endif /*WIRELESS_EXT >= 12 */
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
 #if WIRELESS_EXT >= 12
@@ -2994,7 +2984,6 @@ VOID CFG80211OS_Scaning(
 	IN BOOLEAN					FlgIsNMode,
 	IN UINT8					BW)
 {
-#ifdef CONFIG_STA_SUPPORT
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
 	UINT32 IdChan;
 	UINT32 CenFreq;
@@ -3025,7 +3014,6 @@ VOID CFG80211OS_Scaning(
 								GFP_ATOMIC);
 
 	CFG80211DBG(RT_DEBUG_TRACE, ("80211> cfg80211_inform_bss_frame\n"));
-#endif /* CONFIG_STA_SUPPORT */
 }
 
 
@@ -3048,13 +3036,11 @@ VOID CFG80211OS_ScanEnd(
 	IN VOID *pCB,
 	IN BOOLEAN FlgIsAborted)
 {
-#ifdef CONFIG_STA_SUPPORT
 	CFG80211_CB *pCfg80211_CB = (CFG80211_CB *)pCB;
 
 
 	CFG80211DBG(RT_DEBUG_ERROR, ("80211> cfg80211_scan_done\n"));
 	cfg80211_scan_done(pCfg80211_CB->pCfg80211_ScanReq, FlgIsAborted);
-#endif /* CONFIG_STA_SUPPORT */
 }
 
 

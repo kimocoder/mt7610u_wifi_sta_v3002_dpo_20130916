@@ -213,9 +213,7 @@ int rt28xx_close(VOID *dev)
 		return 0; /* close ok */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	RTMPDrvSTAClose(pAd, net_dev);
-#endif
 
 #ifdef VENDOR_FEATURE2_SUPPORT
 	printk("Number of Packet Allocated in open = %lu\n", OS_NumOfPktAlloc);
@@ -249,7 +247,6 @@ int rt28xx_open(VOID *dev)
 	int retval = 0;
 	ULONG OpMode;
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 	struct usb_interface *intf;
@@ -257,7 +254,6 @@ int rt28xx_open(VOID *dev)
 	INT 		pm_usage_cnt;
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 	// Set debug level
 	RTDebugLevel = debug;
@@ -280,7 +276,6 @@ int rt28xx_open(VOID *dev)
 
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 
@@ -302,7 +297,6 @@ int rt28xx_open(VOID *dev)
 
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
@@ -326,10 +320,8 @@ int rt28xx_open(VOID *dev)
 		if (OpMode == OPMODE_AP)
 			net_dev->wireless_handlers = (struct iw_handler_def *) &rt28xx_ap_iw_handler_def;
 #endif /* CONFIG_APSTA_MIXED_SUPPORT */
-#ifdef CONFIG_STA_SUPPORT
 		if (OpMode == OPMODE_STA)
 			net_dev->wireless_handlers = (struct iw_handler_def *) &rt28xx_iw_handler_def;
-#endif /* CONFIG_STA_SUPPORT */
 	}
 #endif /* WIRELESS_EXT >= 12 */
 
@@ -373,9 +365,7 @@ int rt28xx_open(VOID *dev)
 #endif /* LINUX */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	RTMPDrvSTAOpen(pAd);
-#endif
 
 	return (retval);
 
@@ -421,14 +411,12 @@ PNET_DEV RtmpPhyNetDevInit(
 
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
-#ifdef CONFIG_STA_SUPPORT
 #if WIRELESS_EXT >= 12
 	if (OpMode == OPMODE_STA)
 	{
 		pNetDevHook->iw_handler = (void *)&rt28xx_iw_handler_def;
 	}
 #endif /*WIRELESS_EXT >= 12 */
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
 #if WIRELESS_EXT >= 12
@@ -613,13 +601,11 @@ INT rt28xx_ioctl(
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*	IF_DEV_CONFIG_OPMODE_ON_STA(pAd) */
 	RT_CONFIG_IF_OPMODE_ON_STA(OpMode)
 	{
 		ret = rt28xx_sta_ioctl(net_dev, rq, cmd);
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return ret;
 }
