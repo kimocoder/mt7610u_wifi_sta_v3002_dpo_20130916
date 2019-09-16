@@ -532,9 +532,9 @@ BOOLEAN CFG80211DRV_KeyAdd(
 	}
 	else
 	{
-		DBGPRINT(RT_DEBUG_TRACE, ("Set_WPAPSK_Proc ==> %d, %d, %d...\n", pKeyInfo->KeyId, pKeyInfo->KeyType, strlen(pKeyInfo->KeyBuf)));
-		
 		RT_CMD_STA_IOCTL_SECURITY IoctlSec;
+
+		DBGPRINT(RT_DEBUG_TRACE, ("Set_WPAPSK_Proc ==> %d, %d, %lu...\n", pKeyInfo->KeyId, pKeyInfo->KeyType, strlen(pKeyInfo->KeyBuf)));
 		
 		IoctlSec.KeyIdx = pKeyInfo->KeyId;
 		IoctlSec.pData = pKeyInfo->KeyBuf;
@@ -1335,7 +1335,7 @@ VOID CFG80211_LostApInform(
 {
 
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdCB;
-	CFG80211_CB *p80211CB = pAd->pCfg80211_CB;
+	// TODO CFG80211_CB *p80211CB = pAd->pCfg80211_CB;
 	
 	DBGPRINT(RT_DEBUG_TRACE, ("80211> CFG80211_LostApInform ==> \n"));
 	pAd->StaCfg.bAutoReconnect = FALSE;

@@ -210,17 +210,6 @@ VOID rlt_usb_write_txinfo(
 #endif /* USB_BULK_BUF_ALIGMENT */
 }
 
-
-static VOID rlt_usb_update_txinfo(
-	IN RTMP_ADAPTER *pAd,
-	IN TXINFO_STRUC *pTxInfo,
-	IN TX_BLK *pTxBlk)
-{
-#ifdef RLT_MAC
-#endif /* RLT_MAC */
-}
-
-
 VOID ComposePsPoll(RTMP_ADAPTER *pAd)
 {
 	TXINFO_STRUC *pTxInfo;
@@ -1156,7 +1145,6 @@ PNDIS_PACKET GetPacketFromRxRing(
 	UCHAR *pData, *RXDMA;
 	ULONG ThisFrameLen, RxBufferLength, valid_len;
 	RXWI_STRUC *pRxWI;
-	UINT8 RXWISize = pAd->chipCap.RXWISize;
 	RXINFO_STRUC *pRxInfo;
 #ifdef RLT_MAC
 	RXFCE_INFO *pRxFceInfo;

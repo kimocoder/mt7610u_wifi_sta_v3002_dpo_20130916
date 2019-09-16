@@ -1784,11 +1784,14 @@ static VOID MT76x0_ChipSwitchChannel(
 	BOOLEAN bScan)
 {
 	CHAR TxPwer = 0; /* Bbp94 = BBPR94_DEFAULT, TxPwer2 = DEFAULT_RF_TX_POWER; */
-	UCHAR RFValue = 0;
+	/* UCHAR RFValue = 0; CK */
 	UINT32 RegValue = 0;
 	UINT32 Index;
 	UINT32 rf_phy_mode, rf_bw = RF_BW_20;
-	UCHAR bbp_ch_idx, delta_pwr;
+	UCHAR bbp_ch_idx;
+#ifdef MT76x0_TSSI_CAL_COMPENSATION
+	UCHAR delta_pwr;
+#endif
 	UINT32 ret;
 	ULONG Old, New, Diff;
 #ifndef MT76x0_TSSI_CAL_COMPENSATION
@@ -2313,7 +2316,7 @@ VOID mt76x0_read_per_rate_tx_pwr(
 	IN PRTMP_ADAPTER pAd)
 {
 	UINT32 data;
-	USHORT e2p_val = 0, e2p_val2 = 0;;
+	UINT32 e2p_val = 0, e2p_val2 = 0;
 	UCHAR bw40_gband_delta = 0, bw40_aband_delta = 0, bw80_aband_delta = 0;
 	CHAR t1 = 0, t2 = 0, t3 = 0, t4 = 0;
 	BOOLEAN dec_aband_bw40_delta = FALSE, dec_aband_bw80_delta = FALSE, dec_gband_bw40_delta = FALSE;
@@ -5487,7 +5490,6 @@ void mt76x0_temp_tx_alc_init(PRTMP_ADAPTER pAd)
 
 void mt76x0_read_tx_alc_info_from_eeprom(PRTMP_ADAPTER pAd)
 {
-	BOOLEAN status = TRUE;
 	USHORT e2p_value = 0;
 
 	if (IS_MT76x0(pAd)) {

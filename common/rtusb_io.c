@@ -519,8 +519,8 @@ int write_reg(
 
 	if (ret) {
 		DBGPRINT(RT_DEBUG_ERROR, ("write reg fail\n"));
-		return;
 	}
+	return ret; /* CK */
 }
 
 int read_reg(
@@ -530,7 +530,7 @@ int read_reg(
 	u32 *value)
 {
 	int ret;
-	u8 req;
+	u8 req = 0;
 	u32 io_value;
 	
 	if (base == 0x40)
@@ -551,6 +551,8 @@ int read_reg(
 
 	if (ret)
 		*value = 0xffffffff;
+
+	return ret; /* CK */
 }
 
 /*
@@ -801,7 +803,6 @@ NTSTATUS RTUSBWriteEEPROM(
 	IN	USHORT			length)
 {
 	NTSTATUS Status = STATUS_SUCCESS;
-	USHORT Value;
 
 	Status = RTUSB_VendorRequest(
 				pAd,
@@ -942,24 +943,24 @@ NDIS_STATUS	RTUSBEnqueueCmdFromNdis(
 	if ((status != NDIS_STATUS_SUCCESS) || (cmdqelmt == NULL))
 		return (NDIS_STATUS_RESOURCES);
 
-		cmdqelmt->buffer = NULL;
-		if (pInformationBuffer != NULL)
+	cmdqelmt->buffer = NULL;
+	if (pInformationBuffer != NULL)
+	{
+		status = os_alloc_mem(pAd, (PUCHAR *)&cmdqelmt->buffer, InformationBufferLength);
+		if ((status != NDIS_STATUS_SUCCESS) || (cmdqelmt->buffer == NULL))
 		{
-			status = os_alloc_mem(pAd, (PUCHAR *)&cmdqelmt->buffer, InformationBufferLength);
-			if ((status != NDIS_STATUS_SUCCESS) || (cmdqelmt->buffer == NULL))
-			{
-/*				kfree(cmdqelmt);*/
-				os_free_mem(NULL, cmdqelmt);
-				return (NDIS_STATUS_RESOURCES);
-			}
-			else
-			{
-				NdisMoveMemory(cmdqelmt->buffer, pInformationBuffer, InformationBufferLength);
-				cmdqelmt->bufferlength = InformationBufferLength;
-			}
+/*			kfree(cmdqelmt);*/
+			os_free_mem(NULL, cmdqelmt);
+			return (NDIS_STATUS_RESOURCES);
 		}
 		else
-			cmdqelmt->bufferlength = 0;
+		{
+			NdisMoveMemory(cmdqelmt->buffer, pInformationBuffer, InformationBufferLength);
+			cmdqelmt->bufferlength = InformationBufferLength;
+		}
+	}
+	else
+		cmdqelmt->bufferlength = 0;
 
 	cmdqelmt->command = Oid;
 	cmdqelmt->CmdFromNdis = TRUE;

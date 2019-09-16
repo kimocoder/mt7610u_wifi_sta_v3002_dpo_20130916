@@ -560,7 +560,7 @@ VOID RTMP_P2P_Remove(
 	RTMP_COM_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_80211_BEACON_SET, 0, __pBeacon, 0)
 
 #define RTMP_DRIVER_80211_GEN_IE_SET(__pAd, __pData, __Len)    \
-    RTMP_STA_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_STA_SIOCSIWGENIE, 0, __pData, __Len, 0)	
+    RTMP_STA_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_STA_SIOCSIWGENIE, 0, (void *) __pData, __Len, 0)	
 
 #endif /* RT_CFG80211_SUPPORT */
 
