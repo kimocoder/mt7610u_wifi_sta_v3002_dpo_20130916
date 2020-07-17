@@ -37,8 +37,6 @@
 #undef WSC_INCLUDED
 
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*#ifdef RTMP_USB_SUPPORT */
@@ -53,7 +51,6 @@ typedef VOID	pregs;
  ***********************************************************************************/
 
 
-#ifdef CONFIG_STA_SUPPORT
 
 #ifdef RTMP_MAC_USB
 #define STA_PROFILE_PATH			"/etc/Wireless/RT2870STA/RT2870STA.dat"
@@ -63,7 +60,6 @@ typedef VOID	pregs;
 #endif /* MULTIPLE_CARD_SUPPORT */
 #endif /* RTMP_MAC_USB */
 
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /***********************************************************************************
@@ -132,21 +128,17 @@ typedef char 				* PNDIS_BUFFER;
 #define MIN_NET_DEVICE_FOR_WDS			0x10		/*0x40,0x50,0x60,0x70 */
 #define MIN_NET_DEVICE_FOR_APCLI		0x20
 #define MIN_NET_DEVICE_FOR_MESH			0x30
-#ifdef CONFIG_STA_SUPPORT
 #define MIN_NET_DEVICE_FOR_DLS			0x40
 #define MIN_NET_DEVICE_FOR_TDLS			0x50
-#endif /* CONFIG_STA_SUPPORT */
 
 #define NET_DEVICE_REAL_IDX_MASK		0x0f		/* for each operation mode, we maximum support 15 entities. */
 
 
-#ifdef CONFIG_STA_SUPPORT
 #define NDIS_PACKET_TYPE_DIRECTED		0
 #define NDIS_PACKET_TYPE_MULTICAST		1
 #define NDIS_PACKET_TYPE_BROADCAST		2
 #define NDIS_PACKET_TYPE_ALL_MULTICAST	3
 #define NDIS_PACKET_TYPE_PROMISCUOUS	4
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /***********************************************************************************
@@ -264,13 +256,11 @@ struct os_cookie {
 
 #ifdef RTMP_MAC_USB
 	VOID					*pUsb_Dev;
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 	VOID					 *intf;
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 #endif /* RTMP_MAC_USB */
 
@@ -319,7 +309,6 @@ typedef struct os_cookie	* POS_COOKIE;
 #define PRINT_MAC(addr)	\
 	addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]
 
-#ifdef DBG
 extern ULONG		RTDebugLevel;
 extern ULONG		RTDebugFunc;
 
@@ -348,15 +337,8 @@ do{                                   \
 {									\
 	printk Fmt;					\
 }
-#else
-#define DBGPRINT(Level, Fmt)
-#define DBGPRINT_RAW(Level, Fmt)
-#define DBGPRINT_S(Status, Fmt)
-#define DBGPRINT_ERR(Fmt)
-#endif
 
 #undef  ASSERT
-#ifdef DBG
 #define ASSERT(x)                                                               \
 {                                                                               \
     if (!(x))                                                                   \
@@ -364,9 +346,6 @@ do{                                   \
         printk(__FILE__ ":%d assert " #x "failed\n", __LINE__);    \
     }                                                                           \
 }
-#else
-#define ASSERT(x)
-#endif /* DBG */
 
 void hex_dump(char *str, unsigned char *pSrcBufVA, unsigned int SrcBufLen);
 
@@ -984,10 +963,8 @@ extern int rausb_control_msg(VOID *dev,
 #define ATEDBGPRINT DBGPRINT
 
 #ifdef RTMP_MAC_USB
-#ifdef CONFIG_STA_SUPPORT
 #undef EEPROM_BIN_FILE_NAME /* Avoid APSTA mode re-define issue */
 #define EEPROM_BIN_FILE_NAME  "/etc/Wireless/RT2870STA/e2p.bin"
-#endif /* CONFIG_STA_SUPPORT */
 #endif /* RTMP_MAC_USB */
 
 #endif /* RALINK_ATE */

@@ -94,7 +94,6 @@ enum {
 	SHOW_STA_INFO = 27,
 };
 
-#ifdef CONFIG_STA_SUPPORT
 
 #ifdef WPA_SUPPLICANT_SUPPORT
 #ifndef NATIVE_WPA_SUPPLICANT_SUPPORT
@@ -108,7 +107,6 @@ enum {
 #define RT_INTERFACE_UP                             0x0108
 #endif /* NATIVE_WPA_SUPPLICANT_SUPPORT */
 #endif /* WPA_SUPPLICANT_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 
 /* RALINK command handle ID */
 /* ap commands */
@@ -355,7 +353,6 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_BEACON {
         UINT32 beacon_head_len; /* Before TIM IE */
 		UINT32 beacon_tail_len; /* After TIM IE */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
 	UCHAR *beacon_ies;
 	UINT32 beacon_ies_len;
 	UCHAR *proberesp_ies;
@@ -370,7 +367,6 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_BEACON {
 	BOOLEAN privacy;
 	UCHAR auth_type;
 	INT32 inactivity_timeout;
-#endif
 } CMD_RTPRIV_IOCTL_80211_BEACON;
 
 typedef struct __CMD_RTPRIV_IOCTL_80211_CHAN {
@@ -500,7 +496,6 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_SURVEY {
 #endif /* RT_CFG80211_SUPPORT */
 
 /* station commands */
-#ifdef CONFIG_STA_SUPPORT
 typedef enum _CMD_RTPRIV_IOCTL_STATION {
 
 	/* general */
@@ -554,7 +549,6 @@ typedef enum _CMD_RTPRIV_IOCTL_STATION {
 #define RT_CMD_MODE_ADHOC								0x01
 #define RT_CMD_MODE_INFRA								0x02
 #define RT_CMD_MODE_MONITOR								0x03
-#endif /* CONFIG_STA_SUPPORT */
 
 /* when adding any new type, please also add codes in LINUX_WEVENT_TRANSLATE */
 #define RT_WLAN_EVENT_CUSTOM							0x01

@@ -1784,11 +1784,14 @@ static VOID MT76x0_ChipSwitchChannel(
 	BOOLEAN bScan)
 {
 	CHAR TxPwer = 0; /* Bbp94 = BBPR94_DEFAULT, TxPwer2 = DEFAULT_RF_TX_POWER; */
-	UCHAR RFValue = 0;
+	/* UCHAR RFValue = 0; CK */
 	UINT32 RegValue = 0;
 	UINT32 Index;
 	UINT32 rf_phy_mode, rf_bw = RF_BW_20;
-	UCHAR bbp_ch_idx, delta_pwr;
+	UCHAR bbp_ch_idx;
+#ifdef MT76x0_TSSI_CAL_COMPENSATION
+	UCHAR delta_pwr;
+#endif
 	UINT32 ret;
 	ULONG Old, New, Diff;
 #ifndef MT76x0_TSSI_CAL_COMPENSATION
@@ -2037,7 +2040,6 @@ static VOID MT76x0_ChipSwitchChannel(
 	return;
 }
 
-#ifdef CONFIG_STA_SUPPORT
 static VOID MT76x0_NetDevNickNameInit(RTMP_ADAPTER *pAd)
 {
 
@@ -2050,7 +2052,6 @@ static VOID MT76x0_NetDevNickNameInit(RTMP_ADAPTER *pAd)
 		snprintf((PSTRING) pAd->nickname, sizeof(pAd->nickname), "MT7610U_STA");
 #endif
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 VOID MT76x0_NICInitAsicFromEEPROM(
 	IN PRTMP_ADAPTER		pAd)
@@ -2315,7 +2316,7 @@ VOID mt76x0_read_per_rate_tx_pwr(
 	IN PRTMP_ADAPTER pAd)
 {
 	UINT32 data;
-	USHORT e2p_val = 0, e2p_val2 = 0;;
+	UINT32 e2p_val = 0, e2p_val2 = 0;
 	UCHAR bw40_gband_delta = 0, bw40_aband_delta = 0, bw80_aband_delta = 0;
 	CHAR t1 = 0, t2 = 0, t3 = 0, t4 = 0;
 	BOOLEAN dec_aband_bw40_delta = FALSE, dec_aband_bw80_delta = FALSE, dec_gband_bw40_delta = FALSE;
@@ -2687,10 +2688,8 @@ VOID MT76x0_Init(RTMP_ADAPTER *pAd)
 #endif /* NEW_MBSSID_MODE */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	pChipCap->init_vga_gain_5G = 0x54; 
 	pChipCap->init_vga_gain_2G = 0x4E;
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef RTMP_EFUSE_SUPPORT
 	pChipCap->EFUSE_USAGE_MAP_START = 0x1e0;
@@ -2766,12 +2765,10 @@ VOID MT76x0_Init(RTMP_ADAPTER *pAd)
 	/* BBP adjust */
 	pChipOps->ChipBBPAdjust = MT76x0_ChipBBPAdjust;
 	
-#ifdef CONFIG_STA_SUPPORT
 	pChipOps->ChipAGCAdjust = NULL;
-#endif /* CONFIG_STA_SUPPORT */
 
 	/* Channel */
-	pChipOps->ChipSwitchChannel = MT76x0_ChipSwitchChannel;
+	pChipOps->ChipSwitchChannel = (ChipSwitchChannel_t)MT76x0_ChipSwitchChannel;
 	pChipOps->ChipAGCInit = NULL;
 
 	pChipOps->AsicMacInit = NICInitMT76x0MacRegisters;
@@ -2801,9 +2798,7 @@ VOID MT76x0_Init(RTMP_ADAPTER *pAd)
 	pChipOps->TSSIRatio = NULL;
 	
 	/* Others */
-#ifdef CONFIG_STA_SUPPORT
 	pChipOps->NetDevNickNameInit = MT76x0_NetDevNickNameInit;
-#endif /* CONFIG_STA_SUPPORT */
 #ifdef CARRIER_DETECTION_SUPPORT
 	pAd->chipCap.carrier_func = TONE_RADAR_V3;
 	pChipOps->ToneRadarProgram = ToneRadarProgram_v3;
@@ -5495,7 +5490,6 @@ void mt76x0_temp_tx_alc_init(PRTMP_ADAPTER pAd)
 
 void mt76x0_read_tx_alc_info_from_eeprom(PRTMP_ADAPTER pAd)
 {
-	BOOLEAN status = TRUE;
 	USHORT e2p_value = 0;
 
 	if (IS_MT76x0(pAd)) {

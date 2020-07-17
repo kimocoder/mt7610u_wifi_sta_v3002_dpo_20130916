@@ -182,10 +182,8 @@ INT MT76x0_ReadChannelPwr(struct _RTMP_ADAPTER *pAd);
 
 VOID MT76x0_AsicExtraPowerOverMAC(struct _RTMP_ADAPTER *pAd);
 
-#ifdef DBG
 VOID MT76x0_ShowDmaIndexCupIndex(
 	struct _RTMP_ADAPTER *pAd);
-#endif /* DBG */
 
 #ifdef RT8592
 #endif /* RT8592 */

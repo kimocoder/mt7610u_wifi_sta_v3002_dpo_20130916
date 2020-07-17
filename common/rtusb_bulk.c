@@ -1087,10 +1087,8 @@ VOID	RTUSBBulkReceive(
 			RTMP_IRQ_UNLOCK(&pAd->BulkInLock, IrqFlags);
 
 			/* read RxContext, Since not */
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				STARxDoneInterruptHandle(pAd, TRUE);
-#endif /* CONFIG_STA_SUPPORT */
 
 			/* Finish to handle this bulkIn buffer.*/
 			RTMP_IRQ_LOCK(&pAd->BulkInLock, IrqFlags);
@@ -1113,10 +1111,8 @@ VOID	RTUSBBulkReceive(
 	if (!((RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NEED_STOP_RX) 
 						&& (!RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE)))))
 	{
-#ifdef CONFIG_STA_SUPPORT
 		if(RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_IDLE_RADIO_OFF) )
 			return;
-#endif /* CONFIG_STA_SUPPORT */
 
 		DoBulkIn(pAd);
 	}
@@ -1368,7 +1364,6 @@ VOID	RTUSBCancelPendingBulkInIRP(
 	PRX_CONTEXT pRxContext;
 	PCMD_RSP_CONTEXT pCmdRspEventContext = &pAd->CmdRspEventContext;
 	UINT i;
-	ULONG IrqFlags;
 
 	DBGPRINT_RAW(RT_DEBUG_TRACE, ("--->RTUSBCancelPendingBulkInIRP\n"));
 	for ( i = 0; i < (RX_RING_SIZE); i++)

@@ -161,14 +161,12 @@ VOID RtmpAsicSleepHandle(
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 	/* finally, check if we can sleep */
 	if (FlgCanAsicSleep == TRUE)
 	{
 		/* just mark the flag to FALSE and wait PeerBeacon() to sleep */
 			ASIC_PS_CAN_SLEEP(pAd);
 	}
-#endif // CONFIG_STA_SUPPORT //
 } /* End of RtmpAsicSleepHandle */
 
 

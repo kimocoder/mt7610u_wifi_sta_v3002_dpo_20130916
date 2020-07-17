@@ -675,10 +675,8 @@ struct _RTMP_CHIP_CAP_ {
 	/* 2nd CCA Detection -- */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	UINT8 init_vga_gain_5G;
 	UINT8 init_vga_gain_2G;
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef RT5592EP_SUPPORT
 	UINT32 Priv; /* Flag for RT5592 EP */
@@ -1225,5 +1223,8 @@ INT AsicReadAggCnt(struct _RTMP_ADAPTER *pAd, ULONG *aggCnt, int cnt_len);
 
 VOID StopDmaTx(struct _RTMP_ADAPTER *pAd, UCHAR Level);
 VOID StopDmaRx(struct _RTMP_ADAPTER *pAd, UCHAR Level);
+
+typedef VOID (*ChipSwitchChannel_t)(struct _RTMP_ADAPTER *pAd, UCHAR ch, enum SWITCH_CHANNEL_STAGE Stage);
+typedef VOID (*Calibration_t)(struct _RTMP_ADAPTER *pAd, UINT32 CalibrationID, UINT32 Parameter);
 
 #endif /* __RTMP_CHIP_H__ */

@@ -352,7 +352,6 @@ BOOLEAN RtmpPsIndicate(
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 ========================================================================
 Routine Description:
@@ -443,5 +442,4 @@ VOID RtmpPsModeChange(
 		DBGPRINT(RT_DEBUG_TRACE, ("PSMode=%ld\n", pAd->StaCfg.WindowsPowerMode));
 	}
 }
-#endif /* CONFIG_STA_SUPPORT */
 

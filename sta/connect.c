@@ -2484,10 +2484,8 @@ VOID LinkDown(
 
 /* ------ new addition from mt7612u ------ */
 #ifdef RT_CFG80211_SUPPORT
-#ifdef CONFIG_STA_SUPPORT
 	printk("LOST_AP_INFORM\n");
 	RT_CFG80211_LOST_AP_INFORM(pAd);
-#endif
 #endif /* RT_CFG80211_SUPPORT */
 /* ------ new addition from mt7612u ------ */
 

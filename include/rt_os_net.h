@@ -236,7 +236,6 @@ int P2P_PacketSend(
 	IN	RTMP_NET_PACKET_TRANSMIT	Func);
 
 
-#ifdef CONFIG_STA_SUPPORT
 INT RTMP_STA_IoctlHandle(
 	IN	VOID					*pAd, 
 	IN	RTMP_IOCTL_INPUT_STRUCT	*wrq,
@@ -245,7 +244,6 @@ INT RTMP_STA_IoctlHandle(
 	IN	VOID					*pData,
 	IN	ULONG					Data,
 	IN  USHORT                  priv_flags );
-#endif /* CONFIG_STA_SUPPORT */
 
 VOID RTMPDrvSTAOpen(VOID *pAd);
 VOID RTMPDrvAPOpen(VOID *pAd);
@@ -288,12 +286,10 @@ __inline VOID VIRTUAL_IF_DOWN(VOID *pAd)
 #ifdef RTMP_MODULE_OS
 
 
-#ifdef CONFIG_STA_SUPPORT
 INT rt28xx_sta_ioctl(
 	IN	PNET_DEV		net_dev, 
 	IN	OUT	struct ifreq	*rq, 
 	IN	INT			cmd);
-#endif /* CONFIG_STA_SUPPORT */
 
 PNET_DEV RtmpPhyNetDevInit(
 	IN VOID						*pAd,
@@ -564,7 +560,7 @@ VOID RTMP_P2P_Remove(
 	RTMP_COM_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_80211_BEACON_SET, 0, __pBeacon, 0)
 
 #define RTMP_DRIVER_80211_GEN_IE_SET(__pAd, __pData, __Len)    \
-    RTMP_STA_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_STA_SIOCSIWGENIE, 0, __pData, __Len, 0)	
+    RTMP_STA_IoctlHandle(__pAd, NULL, CMD_RTPRIV_IOCTL_STA_SIOCSIWGENIE, 0, (void *) __pData, __Len, 0)	
 
 #endif /* RT_CFG80211_SUPPORT */
 

@@ -134,11 +134,9 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 	else
 #endif /* MAC_REPEATER_SUPPORT */
 	FirstWcid = 1;
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	if (pAd->StaCfg.BssType == BSS_INFRA)
 		FirstWcid = 2;
-#endif /* CONFIG_STA_SUPPORT */
 
 	/* allocate one MAC entry*/
 	NdisAcquireSpinLock(&pAd->MacTabLock);
@@ -183,7 +181,6 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 
 			do
 			{
-#ifdef CONFIG_STA_SUPPORT
 #ifdef QOS_DLS_SUPPORT
 			if (apidx >= MIN_NET_DEVICE_FOR_DLS)
 			{
@@ -193,7 +190,6 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 			}
 			else
 #endif /* QOS_DLS_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 
@@ -205,8 +201,6 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 
 			RTMPInitTimer(pAd, &pEntry->EnqueueStartForPSKTimer, GET_TIMER_FUNCTION(EnqueueStartForPSKExec), pEntry, FALSE);
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #ifdef TXBF_SUPPORT
@@ -227,12 +221,10 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 				pEntry->apidx = (apidx - MIN_NET_DEVICE_FOR_APCLI);
 			else if (IS_ENTRY_WDS(pEntry))
 				pEntry->apidx = (apidx - MIN_NET_DEVICE_FOR_WDS);
-#ifdef CONFIG_STA_SUPPORT
 #ifdef QOS_DLS_SUPPORT
 			else if (IS_ENTRY_DLS(pEntry))
 				pEntry->apidx = (apidx - MIN_NET_DEVICE_FOR_DLS);
 #endif /* QOS_DLS_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 			else
 				pEntry->apidx = apidx;
 
@@ -241,26 +233,22 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 			{
 
 
-#ifdef CONFIG_STA_SUPPORT
 				IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				{
 					pEntry->AuthMode = pAd->StaCfg.AuthMode;
 					pEntry->WepStatus = pAd->StaCfg.WepStatus;
 					pEntry->PrivacyFilter = Ndis802_11PrivFilterAcceptAll;
 				}
-#endif /* CONFIG_STA_SUPPORT */
 			} while (FALSE);
 
 			pEntry->GTKState = REKEY_NEGOTIATING;
 			pEntry->PairwiseKey.KeyLen = 0;
 			pEntry->PairwiseKey.CipherAlg = CIPHER_NONE;
-#ifdef CONFIG_STA_SUPPORT
 #ifdef QOS_DLS_SUPPORT
 			if (IS_ENTRY_DLS(pEntry))
 				pEntry->PortSecured = WPA_802_1X_PORT_SECURED;
 			else
 #endif /* QOS_DLS_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 				pEntry->PortSecured = WPA_802_1X_PORT_NOT_SECURED;
 
 			pEntry->PMKID_CacheIdx = ENTRY_NOT_FOUND;
@@ -285,14 +273,12 @@ MAC_TABLE_ENTRY *MacTableInsertEntry(
 					break;
 				}
 #endif // WDS_SUPPORT //
-#ifdef CONFIG_STA_SUPPORT
 				if (OpMode == OPMODE_STA)
 				{
 					COPY_MAC_ADDR(pEntry->HdrAddr2, pAd->CurrentAddress);
 					COPY_MAC_ADDR(pEntry->HdrAddr3, pAddr);
 					break;
 				}
-#endif // CONFIG_STA_SUPPORT //
 			} while (FALSE);
 
 			pEntry->Sst = SST_NOT_AUTH;
@@ -416,8 +402,6 @@ BOOLEAN MacTableDeleteEntry(
 #endif // STREAM_MODE_SUPPORT //
 
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
            
 			pPrevEntry = NULL;
@@ -553,8 +537,6 @@ VOID MacTableReset(
 
 			/*MacTableDeleteEntry(pAd, i, pAd->MacTab.Content[i].Addr);*/
 			RTMPReleaseTimer(&pAd->MacTab.Content[i].EnqueueStartForPSKTimer, &Cancelled);
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
             pAd->MacTab.Content[i].EnqueueEapolStartTimerRunning = EAPOL_START_DISABLE;
 
 

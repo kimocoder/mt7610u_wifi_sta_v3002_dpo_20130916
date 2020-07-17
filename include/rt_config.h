@@ -85,8 +85,6 @@
 
 
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef BLOCK_NET_IF
 #include "netif_block.h"
@@ -128,14 +126,12 @@
 #endif /* APCLI_WPA_SUPPLICANT_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef NATIVE_WPA_SUPPLICANT_SUPPORT
 #ifndef WPA_SUPPLICANT_SUPPORT
 #error "Build for being controlled by NetworkManager or wext, please set HAS_WPA_SUPPLICANT=y and HAS_NATIVE_WPA_SUPPLICANT_SUPPORT=y"
 #endif /* WPA_SUPPLICANT_SUPPORT */
 #endif /* NATIVE_WPA_SUPPLICANT_SUPPORT */
 
-#endif /* CONFIG_STA_SUPPORT */
 
 
 
@@ -156,9 +152,7 @@
 #ifdef DOT11_VHT_AC
 #include "vht.h"
 #endif /* DOT11_VHT_AC */
-#ifdef CONFIG_STA_SUPPORT
 #include "sta_cfg.h"
-#endif /* CONFIG_STA_SUPPORT */
 
 
 

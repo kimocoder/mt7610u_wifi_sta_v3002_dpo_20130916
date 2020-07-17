@@ -569,7 +569,6 @@ INT RTMPGetKeyParameterWithOffset(
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 inline void RTMPSetSTADefKeyId(RTMP_ADAPTER *pAd, ULONG KeyIdx)
 {
 	if((KeyIdx >= 1 ) && (KeyIdx <= 4))
@@ -577,7 +576,6 @@ inline void RTMPSetSTADefKeyId(RTMP_ADAPTER *pAd, ULONG KeyIdx)
 	else
 		pAd->StaCfg.DefaultKeyId = 0;
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 static int rtmp_parse_key_buffer_from_file(IN  PRTMP_ADAPTER pAd,IN  PSTRING buffer,IN  ULONG KeyType,IN  INT BSSIdx,IN  INT KeyIdx)
@@ -622,7 +620,6 @@ static void rtmp_read_key_parms_from_file(IN  PRTMP_ADAPTER pAd, PSTRING tmpbuf,
 	if(RTMPGetKeyParameter("DefaultKeyID", tmpbuf, 25, buffer, TRUE))
 	{
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			KeyIdx = simple_strtol(tmpbuf, 0, 10);
@@ -630,7 +627,6 @@ static void rtmp_read_key_parms_from_file(IN  PRTMP_ADAPTER pAd, PSTRING tmpbuf,
 
 			DBGPRINT(RT_DEBUG_TRACE, ("DefaultKeyID(0~3)=%d\n", pAd->StaCfg.DefaultKeyId));
 		}
-#endif /* CONFIG_STA_SUPPORT */		
 	}	   
 
 
@@ -652,7 +648,6 @@ static void rtmp_read_key_parms_from_file(IN  PRTMP_ADAPTER pAd, PSTRING tmpbuf,
 					KeyType[i] = simple_strtol(macptr, 0, 10);
 		    }
 
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			{
 				snprintf(tok_str, sizeof(tok_str), "Key%dStr", idx + 1);
@@ -661,7 +656,6 @@ static void rtmp_read_key_parms_from_file(IN  PRTMP_ADAPTER pAd, PSTRING tmpbuf,
 					rtmp_parse_key_buffer_from_file(pAd, tmpbuf, KeyType[BSS0], BSS0, idx);
 				}
 			}
-#endif /* CONFIG_STA_SUPPORT */
 		}
 	}
 }
@@ -671,7 +665,6 @@ static void rtmp_key_set_default_parms(IN  PRTMP_ADAPTER pAd)
 {
 	ULONG		KeyIdx;
 
-#ifdef CONFIG_STA_SUPPORT
 	// DefaultKeyID=1
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
@@ -679,14 +672,12 @@ static void rtmp_key_set_default_parms(IN  PRTMP_ADAPTER pAd)
 		RTMPSetSTADefKeyId(pAd, KeyIdx);
 		DBGPRINT(RT_DEBUG_TRACE, ("Default DefaultKeyID(0~3)=%d\n", pAd->StaCfg.DefaultKeyId));
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	// Unnecessary to set KeyType[] or KeyStr[]... its default is Key{1,4}{Type,Str} is Invalid key length(0) or Type(0), which does nothing
 }
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 static void rtmp_read_sta_wmm_parms_from_file(IN  PRTMP_ADAPTER pAd, char *tmpbuf, char *buffer)
 {
 	PSTRING					macptr;						
@@ -882,7 +873,6 @@ static void rtmp_psp_xlink_mode_set_default_parms(IN  PRTMP_ADAPTER pAd)
 	DBGPRINT(RT_DEBUG_TRACE, ("Default PSP_XLINK_MODE=%d\n", pAd->StaCfg.PSPXlink));
 }
 #endif /* XLINK_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #ifdef DOT11_VHT_AC
@@ -1198,7 +1188,6 @@ static void HTParametersHook(
 	/* Fixed Tx mode : CCK, OFDM*/
 	if (RTMPGetKeyParameter("FixedTxMode", pValueStr, 25, pInput, TRUE))
 	{
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			pAd->StaCfg.DesiredTransmitSetting.field.FixedTxMode = 
@@ -1206,7 +1195,6 @@ static void HTParametersHook(
 			DBGPRINT(RT_DEBUG_TRACE, ("Fixed Tx Mode = %d\n", 
 											pAd->StaCfg.DesiredTransmitSetting.field.FixedTxMode));			
 		}
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 
@@ -1242,7 +1230,6 @@ static void HTParametersHook(
 	if (RTMPGetKeyParameter("HT_MCS", pValueStr, 50, pInput, TRUE))
 	{
 
-#ifdef CONFIG_STA_SUPPORT 	
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			Value = simple_strtol(pValueStr, 0, 10);
@@ -1259,7 +1246,6 @@ static void HTParametersHook(
 				DBGPRINT(RT_DEBUG_TRACE, ("HT: MCS = AUTO\n"));
 			}
 	}
-#endif /* CONFIG_STA_SUPPORT */		
 	}
 
 	/* STBC */
@@ -1566,7 +1552,6 @@ static void HTParametersHookDefaultValues(
 	pAd->CommonCfg.RegTransmitSetting.field.EXTCHA = EXTCHA_BELOW;
 	DBGPRINT(RT_DEBUG_TRACE, ("Default HT: Ext Channel = %s\n", (pAd->CommonCfg.RegTransmitSetting.field.EXTCHA==0) ? "BELOW" : "ABOVE" ));
 
-#ifdef CONFIG_STA_SUPPORT 
 	// HT_MCS=33	
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
@@ -1584,7 +1569,6 @@ static void HTParametersHookDefaultValues(
 			DBGPRINT(RT_DEBUG_TRACE, ("Default HT: MCS = AUTO\n"));
 		}
 	}
-#endif /* CONFIG_STA_SUPPORT */	
 
 	// HT_STBC=0 (STBC_NONE)
 	pAd->CommonCfg.RegTransmitSetting.field.STBC = STBC_NONE;
@@ -1617,7 +1601,6 @@ static void HTParametersHookDefaultValues(
 #endif /* DOT11_N_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 void RTMPSetSTASSID(RTMP_ADAPTER *pAd, PSTRING SSID)
 {
 	pAd->CommonCfg.SsidLen = (UCHAR) strlen(SSID);
@@ -1779,19 +1762,16 @@ NDIS_STATUS StoreConnectInfo(
 
 #endif /* CREDENTIAL_STORE */
 
-#endif /* CONFIG_STA_SUPPORT */ 
 
 
 void RTMPSetCountryCode(RTMP_ADAPTER *pAd, PSTRING CountryCode)
 {
 	NdisMoveMemory(pAd->CommonCfg.CountryCode, CountryCode , 2);
 	pAd->CommonCfg.CountryCode[2] = ' ';
-#ifdef CONFIG_STA_SUPPORT
 #ifdef EXT_BUILD_CHANNEL_LIST
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		NdisMoveMemory(pAd->StaCfg.StaOriCountryCode, CountryCode , 2);
 #endif /* EXT_BUILD_CHANNEL_LIST */
-#endif /* CONFIG_STA_SUPPORT */
 	if (strlen((PSTRING) pAd->CommonCfg.CountryCode) != 0)
 		pAd->CommonCfg.bCountryFlag = TRUE;
 
@@ -1862,12 +1842,10 @@ NDIS_STATUS	RTMPSetProfileParameters(
 				pAd->CommonCfg.Geography = Geography;
 				pAd->CommonCfg.CountryCode[2] =
 					(pAd->CommonCfg.Geography == BOTH) ? ' ' : ((pAd->CommonCfg.Geography == IDOR) ? 'I' : 'O');
-#ifdef CONFIG_STA_SUPPORT
 #ifdef EXT_BUILD_CHANNEL_LIST
 				IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 					pAd->StaCfg.StaOriGeography = pAd->CommonCfg.Geography;
 #endif /* EXT_BUILD_CHANNEL_LIST */
-#endif /* CONFIG_STA_SUPPORT */							
 				DBGPRINT(RT_DEBUG_TRACE, ("ChannelGeography=%d\n", pAd->CommonCfg.Geography));
 			}
 		}
@@ -1880,7 +1858,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/*SSID*/
@@ -1893,9 +1870,7 @@ NDIS_STATUS	RTMPSetProfileParameters(
 				}
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/*NetworkType*/
@@ -1911,7 +1886,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 				DBGPRINT(RT_DEBUG_TRACE, ("%s::(NetworkType=%d)\n", __FUNCTION__, pAd->StaCfg.BssType));
 			}
 		}
-#endif /* CONFIG_STA_SUPPORT */				
 		/*Channel*/
 		if(RTMPGetKeyParameter("Channel", tmpbuf, 10, pBuffer, TRUE))
 		{
@@ -1965,10 +1939,8 @@ NDIS_STATUS	RTMPSetProfileParameters(
 		if(RTMPGetKeyParameter("TxPower", tmpbuf, 10, pBuffer, TRUE))
 		{
 			pAd->CommonCfg.TxPowerPercentage = (ULONG) simple_strtol(tmpbuf, 0, 10);
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				pAd->CommonCfg.TxPowerDefault = pAd->CommonCfg.TxPowerPercentage;
-#endif /* CONFIG_STA_SUPPORT */
 			DBGPRINT(RT_DEBUG_TRACE, ("TxPower=%ld\n", pAd->CommonCfg.TxPowerPercentage));
 		}
 		/*BGProtection*/
@@ -2078,7 +2050,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 
 		/* WmmCapable*/
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			rtmp_read_sta_wmm_parms_from_file(pAd, tmpbuf, pBuffer);
@@ -2086,7 +2057,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 			rtmp_get_psp_xlink_mode_from_file(pAd, tmpbuf, pBuffer);
 #endif /* XLINK_SUPPORT */
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 
 		/*ShortSlot*/
@@ -2307,7 +2277,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 		/*AuthMode*/
 		if(RTMPGetKeyParameter("AuthMode", tmpbuf, 128, pBuffer, TRUE))
 		{
-#ifdef CONFIG_STA_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			{
 				if ((strcmp(tmpbuf, "WEPAUTO") == 0) || (strcmp(tmpbuf, "wepauto") == 0))
@@ -2333,13 +2302,11 @@ NDIS_STATUS	RTMPSetProfileParameters(
 
 				DBGPRINT(RT_DEBUG_TRACE, ("%s::(AuthMode=%d)\n", __FUNCTION__, pAd->StaCfg.AuthMode));
 			}
-#endif /* CONFIG_STA_SUPPORT */
 		}
 		/*EncrypType*/
 		if(RTMPGetKeyParameter("EncrypType", tmpbuf, 128, pBuffer, TRUE))
 		{
 
-#ifdef CONFIG_STA_SUPPORT 
 			IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			{
 				if ((strcmp(tmpbuf, "WEP") == 0) || (strcmp(tmpbuf, "wep") == 0))
@@ -2354,17 +2321,14 @@ NDIS_STATUS	RTMPSetProfileParameters(
 				/*RTMPMakeRSNIE(pAd, pAd->StaCfg.AuthMode, pAd->StaCfg.WepStatus, 0);*/
 				DBGPRINT(RT_DEBUG_TRACE, ("%s::(EncrypType=%d)\n", __FUNCTION__, pAd->StaCfg.WepStatus));
 			}
-		#endif /* CONFIG_STA_SUPPORT */
 		}
 
 
-#ifdef CONFIG_STA_SUPPORT
 				IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				{
 					if(RTMPGetKeyParameter("WPAPSK", tmpbuf, 512, pBuffer, FALSE))
 						RTMPSetSTAPassPhrase(pAd, tmpbuf);
 				}
-#endif /* CONFIG_STA_SUPPORT */													
 
 				/*DefaultKeyID, KeyType, KeyStr*/
 				rtmp_read_key_parms_from_file(pAd, tmpbuf, pBuffer);
@@ -2411,7 +2375,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 						pAd->CommonCfg.CarrierDetect.Enable = FALSE;
 #endif /* CARRIER_DETECTION_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 				IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 				{
 					/*PSMode*/
@@ -2533,7 +2496,6 @@ NDIS_STATUS	RTMPSetProfileParameters(
 						DBGPRINT(RT_DEBUG_TRACE, ("FastConnect=%d\n", pAd->StaCfg.bFastConnect));
 					}
 				}
-#endif /* CONFIG_STA_SUPPORT */
 
 
 
@@ -2645,16 +2607,13 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 		DBGPRINT(RT_DEBUG_TRACE, ("Default ChannelGeography=2\n"));
 
 		// SSID="11n-AP"
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			RTMPSetSTASSID(pAd, "11n-AP");
 			DBGPRINT(RT_DEBUG_TRACE, ("Default SSID=11n-AP\n"));
 		}
-#endif
 
 		// NetworkType="Infra"
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			pAd->bConfigChanged = TRUE;
@@ -2664,7 +2623,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 			pAd->StaCfg.WpaState = SS_NOTUSE;
 			DBGPRINT(RT_DEBUG_TRACE, ("Default NetworkType=Infra\n"));
 		}
-#endif /* CONFIG_STA_SUPPORT */		
 	
 		// Channel=0
 		pAd->CommonCfg.Channel = (UCHAR) 0;
@@ -2686,10 +2644,8 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 
 		// TxPower=100
 		pAd->CommonCfg.TxPowerPercentage = (ULONG) 100;
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			pAd->CommonCfg.TxPowerDefault = pAd->CommonCfg.TxPowerPercentage;
-#endif /* CONFIG_STA_SUPPORT */
 		DBGPRINT(RT_DEBUG_TRACE, ("Default TxPower=100\n"));
 
 		// BGProtection=0 (auto)
@@ -2728,7 +2684,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 		DBGPRINT(RT_DEBUG_TRACE, ("Default PktAggregate=%d\n", pAd->CommonCfg.bAggregationCapable));
 
 		// Wmm and PSP XLINK related params
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			rtmp_sta_wmm_set_default_parms(pAd);
@@ -2736,7 +2691,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 			rtmp_psp_xlink_mode_set_default_parms(pAd);
 #endif /* XLINK_SUPPORT */
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 		// ShortSlot
 		// Missing from config file: not setting here
@@ -2798,7 +2752,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 		DBGPRINT(RT_DEBUG_TRACE, ("Default WirelessEvent=%d\n", pAd->CommonCfg.bWirelessEvent));
 #endif /* SYSTEM_LOG_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		// AuthMode="OPEN"
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
@@ -2806,9 +2759,7 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 			pAd->StaCfg.PortSecured = WPA_802_1X_PORT_NOT_SECURED;
 			DBGPRINT(RT_DEBUG_TRACE, ("Default AuthMode=OPEN\n"));
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		// EncrypType="NONE"
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
@@ -2817,9 +2768,7 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 			/*RTMPMakeRSNIE(pAd, pAd->StaCfg.AuthMode, pAd->StaCfg.WepStatus, 0);*/
 			DBGPRINT(RT_DEBUG_TRACE, ("Default EncrypType=NONE\n"));
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		// WPAPSK=""
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
@@ -2827,7 +2776,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 			RTMPSetSTAPassPhrase(pAd, tmpbuf);
 			DBGPRINT(RT_DEBUG_TRACE, ("Default WPAPSK=\n"));
 		}
-#endif /* CONFIG_STA_SUPPORT */
 	
 		// DefaultKeyID=1
 		rtmp_key_set_default_parms(pAd);
@@ -2858,7 +2806,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 	
 
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			// PSMode="CAM"
@@ -2903,7 +2850,6 @@ NDIS_STATUS	RTMPSetDefaultProfileParameters(
 
 			// FastConnect (missing)
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #ifdef SINGLE_SKU

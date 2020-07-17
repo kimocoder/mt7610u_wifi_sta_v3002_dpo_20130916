@@ -209,7 +209,6 @@ INT Show_AGS_Proc(
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	The dynamic Tx rate switching for AGS (Adaptive Group Switching)
 
@@ -1080,7 +1079,6 @@ VOID StaQuickResponeForRateUpExecAGS(
 
 	DBGPRINT_RAW(RT_DEBUG_INFO | DBG_FUNC_RA, ("QuickAGS: <--- %s\n", __FUNCTION__));
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 

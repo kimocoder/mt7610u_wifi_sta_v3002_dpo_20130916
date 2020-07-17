@@ -192,8 +192,6 @@ INT rtmp_bbp_set_rxpath(struct _RTMP_ADAPTER *pAd, INT rxpath)
 		val |= (0x0);
 	RTMP_BBP_IO_WRITE8_BY_REG_ID(pAd, BBP_R3, val);
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 	return TRUE;
 }
 
@@ -218,8 +216,6 @@ INT rtmp_bbp_set_ctrlch(struct _RTMP_ADAPTER *pAd, INT ext_ch)
 	if (val != old_val)
 		RTMP_BBP_IO_WRITE8_BY_REG_ID(pAd, BBP_R3, val);
 
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }

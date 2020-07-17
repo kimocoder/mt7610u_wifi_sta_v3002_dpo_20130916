@@ -32,10 +32,8 @@
 #include "rt_os_net.h"
 /*#include	"rt_config.h" */
 
-#ifdef DBG
 extern ULONG RTDebugLevel;
 extern ULONG RTDebugFunc;
-#endif
 
 #define NR_WEP_KEYS 				4
 #define WEP_SMALL_KEY_LEN 			(40/8)
@@ -43,15 +41,9 @@ extern ULONG RTDebugFunc;
 
 #define GROUP_KEY_NO                4
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
 #define IWE_STREAM_ADD_EVENT(_A, _B, _C, _D, _E)		iwe_stream_add_event(_A, _B, _C, _D, _E)
 #define IWE_STREAM_ADD_POINT(_A, _B, _C, _D, _E)		iwe_stream_add_point(_A, _B, _C, _D, _E)
 #define IWE_STREAM_ADD_VALUE(_A, _B, _C, _D, _E, _F)	iwe_stream_add_value(_A, _B, _C, _D, _E, _F)
-#else
-#define IWE_STREAM_ADD_EVENT(_A, _B, _C, _D, _E)		iwe_stream_add_event(_B, _C, _D, _E)
-#define IWE_STREAM_ADD_POINT(_A, _B, _C, _D, _E)		iwe_stream_add_point(_B, _C, _D, _E)
-#define IWE_STREAM_ADD_VALUE(_A, _B, _C, _D, _E, _F)	iwe_stream_add_value(_B, _C, _D, _E, _F)
-#endif
 
 extern UCHAR    CipherWpa2Template[];
 
@@ -99,7 +91,6 @@ struct iw_priv_args privtab[] = {
 	IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "stainfo"},
 /* --- sub-ioctls relations --- */
 
-#ifdef DBG
 { RTPRIV_IOCTL_BBP,
   IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK,
   "bbp"},
@@ -109,7 +100,6 @@ struct iw_priv_args privtab[] = {
 { RTPRIV_IOCTL_E2P,
   IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | 1024,
   "e2p"},
-#endif  /* DBG */
 
 { RTPRIV_IOCTL_STATISTICS,
   0, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK,
@@ -231,10 +221,8 @@ int rt_ioctl_siwmode(struct net_device *dev,
 		Mode = RTMP_CMD_STA_MODE_ADHOC;
 	else if (*mode == IW_MODE_INFRA)
 		Mode = RTMP_CMD_STA_MODE_INFRA;
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,4,20))
 	else if (*mode == IW_MODE_MONITOR)
 		Mode = RTMP_CMD_STA_MODE_MONITOR;
-#endif /* LINUX_VERSION_CODE */
 	else
 	{
 		DBGPRINT(RT_DEBUG_TRACE, ("===>rt_ioctl_siwmode::SIOCSIWMODE (unknown %d)\n", *mode));
@@ -279,10 +267,8 @@ int rt_ioctl_giwmode(struct net_device *dev,
 		*mode = IW_MODE_ADHOC;
 	else if (Mode == RTMP_CMD_STA_MODE_INFRA)
 		*mode = IW_MODE_INFRA;
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,4,20))
 	else if (Mode == RTMP_CMD_STA_MODE_MONITOR)
 		*mode = IW_MODE_MONITOR;
-#endif /* LINUX_VERSION_CODE */
 	else
 		*mode = IW_MODE_AUTO;
 
@@ -693,7 +679,7 @@ int rt_ioctl_iwaplist(struct net_device *dev,
 		set_quality(pAd, &qual[i], pList); /*&pAd->ScanTab.BssEntry[i]); */
 	}
 	data->length = i;
-	memcpy(extra, &addr, i*sizeof(addr[0]));
+	memcpy(extra, addr, i*sizeof(addr[0]));
 	data->flags = 1;		/* signal quality present (sort of) */
 	memcpy(extra + i*sizeof(addr[0]), &qual, i*sizeof(qual[i]));
 
@@ -2160,7 +2146,6 @@ int rt_ioctl_siwpmksa(struct net_device *dev,
 }
 #endif /* #if WIRELESS_EXT > 17 */
 
-#ifdef DBG
 static int
 rt_private_ioctl_bbp(struct net_device *dev, struct iw_request_info *info,
 		struct iw_point *wrq, char *extra)
@@ -2187,7 +2172,6 @@ rt_private_ioctl_bbp(struct net_device *dev, struct iw_request_info *info,
     
     return Status;
 }
-#endif /* DBG */
 
 int rt_ioctl_siwrate(struct net_device *dev,
 			struct iw_request_info *info,
@@ -2327,11 +2311,7 @@ static const iw_handler rt_priv_handlers[] = {
 	(iw_handler) NULL, /* + 0x00 */
 	(iw_handler) NULL, /* + 0x01 */
 	(iw_handler) rt_ioctl_setparam, /* + 0x02 */
-#ifdef DBG
 	(iw_handler) rt_private_ioctl_bbp, /* + 0x03 */	
-#else
-	(iw_handler) NULL, /* + 0x03 */
-#endif
 	(iw_handler) NULL, /* + 0x04 */
 	(iw_handler) NULL, /* + 0x05 */
 	(iw_handler) NULL, /* + 0x06 */
@@ -2580,7 +2560,7 @@ INT rt28xx_sta_ioctl(
 		case SIOCGIWPRIV:
 			if (wrqin->u.data.pointer) 
 			{
-				if ( access_ok(VERIFY_WRITE, wrqin->u.data.pointer, sizeof(privtab)) != TRUE)
+				if ( access_ok(wrqin->u.data.pointer, sizeof(privtab)) != TRUE)
 					break;
 				if ((sizeof(privtab) / sizeof(privtab[0])) <= wrq->u.data.length)
 				{
@@ -2593,7 +2573,7 @@ INT rt28xx_sta_ioctl(
 			}
 			break;
 		case RTPRIV_IOCTL_SET:
-			if(access_ok(VERIFY_READ, wrqin->u.data.pointer, wrqin->u.data.length) != TRUE)   
+			if(access_ok(wrqin->u.data.pointer, wrqin->u.data.length) != TRUE)
 					break;
 			return rt_ioctl_setparam(net_dev, NULL, NULL, wrqin->u.data.pointer);
 			break;
@@ -2602,7 +2582,6 @@ INT rt28xx_sta_ioctl(
 								NULL, 0, RT_DEV_PRIV_FLAGS_GET(net_dev));
 /*			RTMPIoctlGetSiteSurvey(pAd, wrq); */
 		    break;			
-#ifdef DBG
 		case RTPRIV_IOCTL_MAC:
 			RTMP_STA_IoctlHandle(pAd, wrq, CMD_RTPRIV_IOCTL_MAC, 0,
 								NULL, 0, RT_DEV_PRIV_FLAGS_GET(net_dev));
@@ -2613,7 +2592,6 @@ INT rt28xx_sta_ioctl(
 								NULL, 0, RT_DEV_PRIV_FLAGS_GET(net_dev));
 /*			RTMPIoctlE2PROM(pAd, wrq); */
 			break;
-#endif /* DBG */
 
         case SIOCETHTOOL:
                 break;

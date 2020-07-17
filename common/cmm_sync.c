@@ -223,7 +223,6 @@ VOID BuildChannelList(
 	}
 #endif /* RT_CFG80211_SUPPORT */
 
-#ifdef DBG	
 	for (i=0;i<pAd->ChannelListNum;i++)
 	{
 		DBGPRINT_RAW(RT_DEBUG_TRACE,("BuildChannel # %d :: Pwr0 = %d, Pwr1 =%d, Flags = %x\n ", 
@@ -232,7 +231,6 @@ VOID BuildChannelList(
 									 pAd->ChannelList[i].Power2, 
 									 pAd->ChannelList[i].Flags));
 	}
-#endif
 }
 
 /* 

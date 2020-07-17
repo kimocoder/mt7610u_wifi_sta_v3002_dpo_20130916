@@ -86,10 +86,8 @@ UINT GenerateWpsPinCode(
 
 	NdisZeroMemory(macAddr, MAC_ADDR_LEN);
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		NdisMoveMemory(&macAddr[0], pAd->CurrentAddress, MAC_ADDR_LEN);
-#endif /* CONFIG_STA_SUPPORT */
 
 	iPin = macAddr[3] * 256 * 256 + macAddr[4] * 256 + macAddr[5];
 
@@ -687,7 +685,6 @@ INT RTMP_COM_IoctlHandle(
 			CW_MAX_IN_BITS = Data;
 			break;
 #endif /* CONFIG_APSTA_MIXED_SUPPORT */
-#ifdef CONFIG_STA_SUPPORT
 //#ifdef CONFIG_PM
 #ifdef RTMP_USB_SUPPORT
 //#ifdef USB_SUPPORT_SELECTIVE_SUSPEND
@@ -702,7 +699,7 @@ INT RTMP_COM_IoctlHandle(
                 case CMD_RTPRIV_IOCTL_USB_INTF_GET:
                 /* get USB INTF */
                 {
-                        VOID **ppINTF = (VOID **)pData;
+                        //VOID **ppINTF = (VOID **)pData;
                         //*ppINTF = (VOID *)(pObj->intf);
                 }
                         break;
@@ -791,7 +788,6 @@ INT RTMP_COM_IoctlHandle(
 			else
 				return NDIS_STATUS_FAILURE;
 			break;
-#endif /* CONFIG_STA_SUPPORT */
 
 		case CMD_RTPRIV_IOCTL_SANITY_CHECK:
 		/* sanity check before IOCTL */
@@ -1033,27 +1029,22 @@ INT RTMP_COM_IoctlHandle(
 			pStats->noise = 0;
 			pStats->pStats = pAd->iw_stats;
 			
-#ifdef CONFIG_STA_SUPPORT
 			if (pAd->OpMode == OPMODE_STA)
 			{
 				CurOpMode = OPMODE_STA;
 			}
-#endif /* CONFIG_STA_SUPPORT */
 
 			/*check if the interface is down*/
 			if(!RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_INTERRUPT_IN_USE))
 				return NDIS_STATUS_FAILURE;	
 
 
-#ifdef CONFIG_STA_SUPPORT
 			if (CurOpMode == OPMODE_STA)
 				pStats->qual = ((pAd->Mlme.ChannelQuality * 12)/10 + 10);
-#endif /* CONFIG_STA_SUPPORT */
 
 			if (pStats->qual > 100)
 				pStats->qual = 100;
 
-#ifdef CONFIG_STA_SUPPORT
 			if (CurOpMode == OPMODE_STA)
 			{
 				pStats->level =
@@ -1061,15 +1052,12 @@ INT RTMP_COM_IoctlHandle(
 									pAd->StaCfg.RssiSample.AvgRssi1,
 									pAd->StaCfg.RssiSample.AvgRssi2);
 			}
-#endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 			pStats->noise = RTMPMaxRssi(pAd, pAd->StaCfg.RssiSample.AvgRssi0,
 										pAd->StaCfg.RssiSample.AvgRssi1,
 										pAd->StaCfg.RssiSample.AvgRssi2) - 
 										RTMPMinSnr(pAd, pAd->StaCfg.RssiSample.AvgSnr0, 
 										pAd->StaCfg.RssiSample.AvgSnr1);
-#endif /* CONFIG_STA_SUPPORT */
 		}
 			break;
 
@@ -1188,7 +1176,6 @@ INT Set_SiteSurvey_Proc(
 		return -ENETDOWN;   
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		if (MONITOR_ON(pAd))
@@ -1197,12 +1184,10 @@ INT Set_SiteSurvey_Proc(
         	return -EINVAL;
     	}
 	}
-#endif // CONFIG_STA_SUPPORT //
 
     NdisZeroMemory(&Ssid, sizeof(NDIS_802_11_SSID));
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		Ssid.SsidLength = 0; 
@@ -1216,7 +1201,6 @@ INT Set_SiteSurvey_Proc(
 		pAd->StaCfg.bSkipAutoScanConn = TRUE;
 		StaSiteSurvey(pAd, &Ssid, SCAN_ACTIVE);
 	}
-#endif // CONFIG_STA_SUPPORT //
 
 	DBGPRINT(RT_DEBUG_TRACE, ("Set_SiteSurvey_Proc\n"));
 

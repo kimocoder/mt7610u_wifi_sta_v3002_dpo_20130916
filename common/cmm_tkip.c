@@ -504,8 +504,6 @@ VOID	RTMPCalculateMICValue(
 	if (((*(pSrc + 12) << 8) + *(pSrc + 13)) == 0x8100)
 		vlan_offset = 4;
 	
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 	{
 		RTMPInitMICEngine(
 			pAd,
@@ -817,7 +815,6 @@ BOOLEAN RTMPSoftDecryptTKIP(
 	if (!NdisEqualMemory(MIC, TrailMIC, LEN_TKIP_MIC))
 	{
 		DBGPRINT(RT_DEBUG_ERROR, ("! TKIP MIC Error !\n"));	 /*MIC error.*/
-#ifdef CONFIG_STA_SUPPORT
 		/*RTMPReportMicError(pAd, &pWpaKey[KeyID]);	 marked by AlbertY @ 20060630 */
 #ifdef WPA_SUPPLICANT_SUPPORT
         if (pAd->StaCfg.WpaSupplicantUP) {
@@ -828,7 +825,6 @@ BOOLEAN RTMPSoftDecryptTKIP(
         } else
 #endif /* WPA_SUPPLICANT_SUPPORT */
         RTMPReportMicError(pAd, pKey);
-#endif /* CONFIG_STA_SUPPORT */
 		return FALSE;		
 	}
 

@@ -433,7 +433,6 @@ INT Set_RxStop_Proc(
 	IN RTMP_ADAPTER *pAd, 
 	IN PSTRING arg);
 
-#ifdef DBG
 INT Set_EERead_Proc(
 	IN	PRTMP_ADAPTER	pAd, 
 	IN	PSTRING			arg);
@@ -453,7 +452,6 @@ INT Set_BBPWrite_Proc(
 INT Set_RFWrite_Proc(
 	IN	PRTMP_ADAPTER	pAd, 
 	IN	PSTRING			arg);
-#endif /* DBG */ 
 #endif /* RALINK_QA */
 
 #ifdef RLT_RF

@@ -2365,11 +2365,9 @@ static INT32 DO_RACFG_CMD_ATE_SHOW_PARAM(
 	ATEExParam.RxAntennaSel = pATEInfo->RxAntennaSel;
 
 
-#ifdef CONFIG_STA_SUPPORT
 	NdisMoveMemory(ATEExParam.DA, pATEInfo->Addr3, MAC_ADDR_LEN);
 	NdisMoveMemory(ATEExParam.SA, pATEInfo->Addr2, MAC_ADDR_LEN);
 	NdisMoveMemory(ATEExParam.BSSID, pATEInfo->Addr1, MAC_ADDR_LEN);
-#endif /* CONFIG_STA_SUPPORT */
 
 	ATEExParam.MCS = pATEInfo->TxWI.TxWIMCS;
 	ATEExParam.PhyMode = pATEInfo->TxWI.TxWIPHYMODE;
@@ -2780,7 +2778,6 @@ INT Set_RxStop_Proc(
 }
 
 
-#ifdef DBG
 INT Set_EERead_Proc(
 	IN	PRTMP_ADAPTER	pAd, 
 	IN	PSTRING			arg)
@@ -2933,6 +2930,5 @@ INT Set_RFWrite_Proc(
 	
 	return TRUE;
 }
-#endif /* DBG */
 #endif /* RALINK_QA */
 

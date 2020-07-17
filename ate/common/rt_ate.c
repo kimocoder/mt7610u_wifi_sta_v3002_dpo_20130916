@@ -1358,7 +1358,6 @@ VOID ATEDisableAsicProtect(
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID RTMPStationStop(
     IN  PRTMP_ADAPTER   pAd)
 {
@@ -1378,7 +1377,6 @@ VOID RTMPStationStart(
 
 	DBGPRINT(RT_DEBUG_TRACE, ("<== RTMPStationStart\n"));
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 
@@ -1664,7 +1662,6 @@ static NDIS_STATUS ATESTART(
 	RTUSBRejectPendingPackets(pAd);
 	RTUSBCleanUpDataBulkOutQueue(pAd);
 
-#ifdef CONFIG_STA_SUPPORT
 	/*
 		It will be called in MlmeSuspend().
 		Cancel pending timers.
@@ -1675,7 +1672,6 @@ static NDIS_STATUS ATESTART(
 	RTMPCancelTimer(&pAd->MlmeAux.AuthTimer,       &Cancelled);
 	RTMPCancelTimer(&pAd->MlmeAux.BeaconTimer,     &Cancelled);
 	RTMPCancelTimer(&pAd->MlmeAux.ScanTimer,       &Cancelled);
-#endif /* CONFIG_STA_SUPPORT */
 
 	RTUSBCleanUpMLMEBulkOutQueue(pAd);
 
@@ -1778,11 +1774,9 @@ static NDIS_STATUS ATESTART(
 	}
 
 
-#ifdef CONFIG_STA_SUPPORT 
 	AsicDisableSync(pAd);
 	ATEDisableAsicProtect(pAd);
 	RTMPStationStop(pAd);
-#endif /* CONFIG_STA_SUPPORT */
 
 	if ((atemode == ATE_STOP) && (pATEInfo->PeriodicTimer.State == FALSE))
 	{
@@ -1994,7 +1988,6 @@ static NDIS_STATUS ATESTOP(
 	AsicEnableBssSync(pAd);
 	BbpSoftReset(pAd);
 	{
-#ifdef CONFIG_STA_SUPPORT
 		/* Set all state machines back IDLE */
 		pAd->Mlme.CntlMachine.CurrState    = CNTL_IDLE;
 		pAd->Mlme.AssocMachine.CurrState   = ASSOC_IDLE;
@@ -2002,7 +1995,6 @@ static NDIS_STATUS ATESTOP(
 		pAd->Mlme.AuthRspMachine.CurrState = AUTH_RSP_IDLE;
 		pAd->Mlme.SyncMachine.CurrState    = SYNC_IDLE;
 		pAd->Mlme.ActMachine.CurrState    = ACT_IDLE;
-#endif /* CONFIG_STA_SUPPORT */
 
 		/*
 			===> refer to MlmeRestartStateMachine().
@@ -2018,9 +2010,7 @@ static NDIS_STATUS ATESTOP(
 		AsicLockChannel(pAd, pAd->CommonCfg.Channel);
 
 
-#ifdef CONFIG_STA_SUPPORT 
 	    RTMPStationStart(pAd);
-#endif /* CONFIG_STA_SUPPORT */
 	}	
 
 	/* Clear ATE Bulk in/out counter and continue setup. */
@@ -2038,10 +2028,8 @@ static NDIS_STATUS ATESTOP(
 #endif /* RTMP_MAC_USB */
 
 
-#ifdef CONFIG_STA_SUPPORT 
 	/* restore RX_FILTR_CFG due to that QA maybe set it to 0x3 */
 	RTMP_IO_WRITE32(pAd, RX_FILTR_CFG, STANORMAL);
-#endif /* CONFIG_STA_SUPPORT */
 
 	/* Enable Tx */
 	ATE_MAC_TX_ENABLE(pAd, MAC_SYS_CTRL, &MacData);
@@ -3113,9 +3101,7 @@ INT	Set_ATE_DA_Proc(
 			return FALSE;  
 		}
 
-#ifdef CONFIG_STA_SUPPORT
 		AtoH(value, &pATEInfo->Addr3[octet++], 1);
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 	/* sanity check */
@@ -3124,11 +3110,9 @@ INT	Set_ATE_DA_Proc(
 		return FALSE;  
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	DBGPRINT(RT_DEBUG_TRACE, ("Set_ATE_DA_Proc (DA = %02x:%02x:%02x:%02x:%02x:%02x)\n", 
 		pATEInfo->Addr3[0], pATEInfo->Addr3[1], pATEInfo->Addr3[2], pATEInfo->Addr3[3],
 		pATEInfo->Addr3[4], pATEInfo->Addr3[5]));
-#endif /* CONFIG_STA_SUPPORT */
 	
 	DBGPRINT(RT_DEBUG_TRACE, ("Ralink: Set_ATE_DA_Proc Success\n"));
 	
@@ -3167,9 +3151,7 @@ INT	Set_ATE_SA_Proc(
 			return FALSE;  
 		}
 
-#ifdef CONFIG_STA_SUPPORT
 		AtoH(value, &pATEInfo->Addr2[octet++], 1);
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 	/* sanity check */
@@ -3178,11 +3160,9 @@ INT	Set_ATE_SA_Proc(
 		return FALSE;
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	DBGPRINT(RT_DEBUG_TRACE, ("Set_ATE_SA_Proc (SA = %02x:%02x:%02x:%02x:%02x:%02x)\n", 
 		pATEInfo->Addr2[0], pATEInfo->Addr2[1], pATEInfo->Addr2[2], pATEInfo->Addr2[3],
 		pATEInfo->Addr2[4], pATEInfo->Addr2[5]));
-#endif /* CONFIG_STA_SUPPORT */
 
 	DBGPRINT(RT_DEBUG_TRACE, ("Ralink: Set_ATE_SA_Proc Success\n"));
 
@@ -3221,9 +3201,7 @@ INT	Set_ATE_BSSID_Proc(
 			return FALSE;  
 		}
 
-#ifdef CONFIG_STA_SUPPORT
 		AtoH(value, &pATEInfo->Addr1[octet++], 1);
-#endif /* CONFIG_STA_SUPPORT */
 	}
 
 	/* sanity check */
@@ -3232,11 +3210,9 @@ INT	Set_ATE_BSSID_Proc(
 		return FALSE;
 	}
 
-#ifdef CONFIG_STA_SUPPORT
 	DBGPRINT(RT_DEBUG_TRACE, ("Set_ATE_BSSID_Proc (BSSID = %02x:%02x:%02x:%02x:%02x:%02x)\n",	
 		pATEInfo->Addr1[0], pATEInfo->Addr1[1], pATEInfo->Addr1[2], pATEInfo->Addr1[3],
 		pATEInfo->Addr1[4], pATEInfo->Addr1[5]));
-#endif /* CONFIG_STA_SUPPORT */
 
 	DBGPRINT(RT_DEBUG_TRACE, ("Ralink: Set_ATE_BSSID_Proc Success\n"));
 

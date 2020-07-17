@@ -29,7 +29,6 @@
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 VOID AsicUpdateAutoFallBackTable(
 	IN	PRTMP_ADAPTER	pAd,
 	IN	PUCHAR			pRateTable)
@@ -287,7 +286,6 @@ skipUpdate:
 #endif /* DOT11N_SS3_SUPPORT */
 
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*
@@ -327,7 +325,8 @@ VOID AsicUpdateProtect(
 	PROT_CFG_STRUC	ProtCfg, ProtCfg4;
 	UINT32 Protect[6];
 	USHORT offset;
-	UCHAR i, PhyMode = 0x4000;
+	UCHAR i;
+	UINT32 PhyMode = 0x4000;
 	UINT32 MacReg = 0;
 
 #ifdef RALINK_ATE
@@ -777,19 +776,16 @@ VOID AsicSwitchChannel(
 	IN BOOLEAN bScan) 
 {
 	UCHAR bw;
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 	POS_COOKIE  pObj = (POS_COOKIE) pAd->OS_Cookie;
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_RADIO_OFF))
 		return; 
 
 	RTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_SUSPEND);
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 
@@ -809,7 +805,6 @@ VOID AsicSwitchChannel(
 
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 
@@ -1250,7 +1245,6 @@ VOID AsicResetBBPAgent(PRTMP_ADAPTER pAd)
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	==========================================================================
 	Description:
@@ -1301,7 +1295,6 @@ VOID AsicForceWakeup(
     DBGPRINT(RT_DEBUG_INFO, ("--> AsicForceWakeup \n"));
     RTMP_STA_FORCE_WAKEUP(pAd, bFromTx);	
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /*
@@ -1467,7 +1460,6 @@ VOID AsicEnableBssSync(
 
 	RTMP_IO_READ32(pAd, BCN_TIME_CFG, &csr.word);
 /*	RTMP_IO_WRITE32(pAd, BCN_TIME_CFG, 0x00000000);*/
-#ifdef CONFIG_STA_SUPPORT	
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		csr.field.BeaconInterval = pAd->CommonCfg.BeaconPeriod << 4; /* ASIC register in units of 1/16 TU*/
@@ -1476,7 +1468,6 @@ VOID AsicEnableBssSync(
 		csr.field.bBeaconGen  = 0; /* do NOT generate BEACON*/
 		csr.field.bTBTTEnable = 1;
 	}
-#endif /* CONFIG_STA_SUPPORT */	
 	RTMP_IO_WRITE32(pAd, BCN_TIME_CFG, csr.word);
 }
 
@@ -1717,7 +1708,6 @@ VOID AsicSetEdcaParm(
 #ifdef INF_AMAZON_SE
 #endif /* INF_AMAZON_SE */
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/* Tuning for Wi-Fi WMM S06*/
@@ -1735,7 +1725,6 @@ VOID AsicSetEdcaParm(
 			}
 			
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
 		Ac3Cfg.field.AcTxop = pEdcaParm->Txop[QID_AC_VO];
 		Ac3Cfg.field.Cwmin = pEdcaParm->Cwmin[QID_AC_VO];
@@ -1755,8 +1744,6 @@ VOID AsicSetEdcaParm(
 			}
 		}
 /*#endif  WIFI_TEST */
-#ifdef CONFIG_STA_SUPPORT
-#endif /* CONFIG_STA_SUPPORT */
 
 
 		RTMP_IO_WRITE32(pAd, EDCA_AC0_CFG, Ac0Cfg.word);
@@ -1780,10 +1767,8 @@ VOID AsicSetEdcaParm(
 		CwminCsr.field.Cwmin0 = pEdcaParm->Cwmin[QID_AC_BE];
 		CwminCsr.field.Cwmin1 = pEdcaParm->Cwmin[QID_AC_BK];
 		CwminCsr.field.Cwmin2 = pEdcaParm->Cwmin[QID_AC_VI];
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 			CwminCsr.field.Cwmin3 = pEdcaParm->Cwmin[QID_AC_VO] - 1; /*for TGn wifi test*/
-#endif /* CONFIG_STA_SUPPORT */
 		RTMP_IO_WRITE32(pAd, WMM_CWMIN_CFG, CwminCsr.word);
 
 		CwmaxCsr.word = 0;
@@ -1796,7 +1781,6 @@ VOID AsicSetEdcaParm(
 		AifsnCsr.word = 0;
 		AifsnCsr.field.Aifsn0 = Ac0Cfg.field.Aifsn; /*pEdcaParm->Aifsn[QID_AC_BE];*/
 		AifsnCsr.field.Aifsn1 = Ac1Cfg.field.Aifsn; /*pEdcaParm->Aifsn[QID_AC_BK];*/
-#ifdef CONFIG_STA_SUPPORT
 #ifdef RTMP_MAC_USB
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
@@ -1804,12 +1788,10 @@ VOID AsicSetEdcaParm(
 				AifsnCsr.field.Aifsn1 = Ac1Cfg.field.Aifsn + 2; 	/*5.2.27 T7 Pass*/
 		}
 #endif /* RTMP_MAC_USB */
-#endif /* CONFIG_STA_SUPPORT */
 		AifsnCsr.field.Aifsn2 = Ac2Cfg.field.Aifsn; /*pEdcaParm->Aifsn[QID_AC_VI];*/
 #ifdef INF_AMAZON_SE
 #endif /* INF_AMAZON_SE */
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			/* Tuning for Wi-Fi WMM S06*/
@@ -1829,14 +1811,11 @@ VOID AsicSetEdcaParm(
 			if (INFRA_ON(pAd))
 				CLIENT_STATUS_SET_FLAG(&pAd->MacTab.Content[BSSID_WCID], fCLIENT_STATUS_WMM_CAPABLE);
 		}
-#endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{
 			AifsnCsr.field.Aifsn3 = Ac3Cfg.field.Aifsn - 1; /*pEdcaParm->Aifsn[QID_AC_VO]; for TGn wifi test*/
 		}
-#endif /* CONFIG_STA_SUPPORT */
 		RTMP_IO_WRITE32(pAd, WMM_AIFSN_CFG, AifsnCsr.word);
 
 		NdisMoveMemory(&pAd->CommonCfg.APEdcaParm, pEdcaParm, sizeof(EDCA_PARM));
@@ -1890,10 +1869,8 @@ VOID 	AsicSetSlotTime(
 	ULONG	SlotTime;
 	UINT32	RegValue = 0;
 
-#ifdef CONFIG_STA_SUPPORT
 	if (pAd->CommonCfg.Channel > 14)
 		bUseShortSlotTime = TRUE;
-#endif /* CONFIG_STA_SUPPORT */
 
 	if (bUseShortSlotTime && OPSTATUS_TEST_FLAG(pAd, fOP_STATUS_SHORT_SLOT_INUSED))
 		return;
@@ -1907,7 +1884,6 @@ VOID 	AsicSetSlotTime(
 
 	SlotTime = (bUseShortSlotTime)? 9 : 20;
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		/* force using short SLOT time for FAE to demo performance when TxBurst is ON*/
@@ -1926,12 +1902,10 @@ VOID 	AsicSetSlotTime(
 			SlotTime = 9;
 		}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	
 	/* For some reasons, always set it to short slot time.*/
 	/* ToDo: Should consider capability with 11B*/
-#ifdef CONFIG_STA_SUPPORT 
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		if (pAd->StaCfg.BssType == BSS_ADHOC)	
@@ -1940,7 +1914,6 @@ VOID 	AsicSetSlotTime(
 			SlotTime = 20;
 		}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	RTMP_IO_READ32(pAd, BKOFF_SLOT_CFG, &RegValue);
 	RegValue = RegValue & 0xFFFFFF00;

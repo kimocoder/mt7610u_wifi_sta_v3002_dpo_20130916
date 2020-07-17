@@ -396,13 +396,11 @@ VOID RTMPSetHT(
 #endif /* TXBF_SUPPORT */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 
 		RTMPSetIndividualHT(pAd, 0);
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 }
 
@@ -432,7 +430,6 @@ VOID RTMPSetIndividualHT(
 
 
 
-#ifdef CONFIG_STA_SUPPORT
 		IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 		{		
 			pDesired_ht_phy = &pAd->StaCfg.DesiredHtPhyInfo;					
@@ -440,7 +437,6 @@ VOID RTMPSetIndividualHT(
 			encrypt_mode = pAd->StaCfg.WepStatus;
 			break;
 		}	
-#endif /* CONFIG_STA_SUPPORT */
 	} while (FALSE);
 
 	if (pDesired_ht_phy == NULL)
@@ -464,11 +460,9 @@ VOID RTMPSetIndividualHT(
 		DesiredMcs = MCS_0;		
 	}
 	   		
-#ifdef CONFIG_STA_SUPPORT
 	if ((pAd->OpMode == OPMODE_STA) && (pAd->StaCfg.BssType == BSS_INFRA) && (apidx == MIN_NET_DEVICE_FOR_MBSSID))
 		;
 	else
-#endif /* CONFIG_STA_SUPPORT */
 	/*
 		WFA recommend to restrict the encryption type in 11n-HT mode.
 	 	So, the WEP and TKIP are not allowed in HT rate. 
@@ -482,9 +476,7 @@ VOID RTMPSetIndividualHT(
 
 	if (pAd->CommonCfg.HT_Disable)
 	{
-#ifdef CONFIG_STA_SUPPORT
 		pAd->StaCfg.bAdhocN = FALSE;
-#endif /* CONFIG_STA_SUPPORT */
 		DBGPRINT(RT_DEBUG_TRACE, ("%s : HT is disabled\n", __FUNCTION__));
 		return;
 	}
@@ -572,12 +564,10 @@ VOID RTMPDisableDesiredHtInfo(
 {
 
 
-#ifdef CONFIG_STA_SUPPORT
 	IF_DEV_CONFIG_OPMODE_ON_STA(pAd)
 	{
 		RTMPZeroMemory(&pAd->StaCfg.DesiredHtPhyInfo, sizeof(RT_PHY_INFO));
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 }
 

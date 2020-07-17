@@ -212,14 +212,12 @@ VOID RTMPWriteTxWI_Data(RTMP_ADAPTER *pAd, TXWI_STRUC *pTxWI, TX_BLK *pTxBlk)
 	pTxWI->TxWIACK = TX_BLK_TEST_FLAG(pTxBlk, fTX_bAckRequired);
 	pTxWI->TxWITXOP = pTxBlk->FrameGap;
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef QOS_DLS_SUPPORT
 	if (pMacEntry && IS_ENTRY_DLS(pMacEntry) &&
 		(pAd->StaCfg.BssType == BSS_INFRA))
 		pTxWI->TxWIWirelessCliID = BSSID_WCID;
 	else
 #endif /* QOS_DLS_SUPPORT */
-#endif /* CONFIG_STA_SUPPORT */
 	pTxWI->TxWIWirelessCliID = pTxBlk->Wcid;
 
 	pTxWI->TxWIMPDUByteCnt = pTxBlk->MpduHeaderLen + pTxBlk->SrcBufLen;

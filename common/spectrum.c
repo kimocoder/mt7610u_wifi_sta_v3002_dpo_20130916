@@ -1846,10 +1846,8 @@ static VOID PeerChSwAnnAction(
 {
 	CH_SW_ANN_INFO ChSwAnnInfo;
 	PFRAME_802_11 pFr = (PFRAME_802_11)Elem->Msg;
-#ifdef CONFIG_STA_SUPPORT
 	UCHAR index = 0, Channel = 0, NewChannel = 0;
 	ULONG Bssidx = 0;
-#endif /* CONFIG_STA_SUPPORT */
 
 	NdisZeroMemory(&ChSwAnnInfo, sizeof(CH_SW_ANN_INFO));
 	if (! PeerChSwAnnSanity(pAd, Elem->Msg, Elem->MsgLen, &ChSwAnnInfo))
@@ -1859,7 +1857,6 @@ static VOID PeerChSwAnnAction(
 	}
 
 
-#ifdef CONFIG_STA_SUPPORT
 	if (pAd->OpMode == OPMODE_STA)
 	{
 		Bssidx = BssTableSearch(&pAd->ScanTab, pFr->Hdr.Addr3, pAd->CommonCfg.Channel);
@@ -1905,7 +1902,6 @@ static VOID PeerChSwAnnAction(
 			}
 		}
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return;
 }
@@ -1969,7 +1965,7 @@ static VOID PeerMeasureReportAction(
 /*	if ((pMeasureReportInfo = kmalloc(sizeof(MEASURE_RPI_REPORT), GFP_ATOMIC)) == NULL)*/
 	if (pMeasureReportInfo == NULL)
 	{
-		DBGPRINT(RT_DEBUG_ERROR, ("%s unable to alloc memory for measure report buffer (size=%d).\n", __FUNCTION__, sizeof(MEASURE_RPI_REPORT)));
+		DBGPRINT(RT_DEBUG_ERROR, ("%s unable to alloc memory for measure report buffer (size=%lu).\n", __FUNCTION__, sizeof(MEASURE_RPI_REPORT)));
 		return;
 	}
 

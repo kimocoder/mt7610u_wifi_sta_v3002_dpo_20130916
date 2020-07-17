@@ -220,7 +220,7 @@ else
 WFLAGS += -DSTA_DRIVER_BUILD="\"${STA_DRIVER_BUILD}\""
 endif
 
-WFLAGS += -g -DAGGREGATION_SUPPORT -DPIGGYBACK_SUPPORT -DWMM_SUPPORT  -DLINUX -Wall -Wstrict-prototypes -Wno-trigraphs
+WFLAGS += -g -DAGGREGATION_SUPPORT -DPIGGYBACK_SUPPORT -DWMM_SUPPORT  -DLINUX -Wall -Wstrict-prototypes -Wno-trigraphs -Werror -Wno-error=frame-larger-than= -Wno-error=discarded-qualifiers
 WFLAGS += -DSYSTEM_LOG_SUPPORT -DRT28xx_MODE=$(RT28xx_MODE) -DCHIPSET=$(MODULE) -DRESOURCE_PRE_ALLOC -DENHANCED_STAT_DISPLAY
 #WFLAGS += -DFPGA_MODE
 WFLAGS += -I$(RT28xx_DIR)/include

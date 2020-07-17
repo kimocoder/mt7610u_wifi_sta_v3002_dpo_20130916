@@ -210,18 +210,6 @@ VOID rlt_usb_write_txinfo(
 #endif /* USB_BULK_BUF_ALIGMENT */
 }
 
-
-static VOID rlt_usb_update_txinfo(
-	IN RTMP_ADAPTER *pAd,
-	IN TXINFO_STRUC *pTxInfo,
-	IN TX_BLK *pTxBlk)
-{
-#ifdef RLT_MAC
-#endif /* RLT_MAC */
-}
-
-
-#ifdef CONFIG_STA_SUPPORT
 VOID ComposePsPoll(RTMP_ADAPTER *pAd)
 {
 	TXINFO_STRUC *pTxInfo;
@@ -256,7 +244,6 @@ VOID ComposePsPoll(RTMP_ADAPTER *pAd)
 	/* Append 4 extra zero bytes. */
 	pAd->PsPollContext.BulkOutSize = TXINFO_SIZE + TXWISize + TSO_SIZE + data_len + 4;
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 
 /* IRQL = DISPATCH_LEVEL */
@@ -1158,7 +1145,6 @@ PNDIS_PACKET GetPacketFromRxRing(
 	UCHAR *pData, *RXDMA;
 	ULONG ThisFrameLen, RxBufferLength, valid_len;
 	RXWI_STRUC *pRxWI;
-	UINT8 RXWISize = pAd->chipCap.RXWISize;
 	RXINFO_STRUC *pRxInfo;
 #ifdef RLT_MAC
 	RXFCE_INFO *pRxFceInfo;
@@ -1285,7 +1271,6 @@ label_null:
 }
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*
 	========================================================================
 
@@ -1477,7 +1462,6 @@ VOID RT28xxUsbStaAsicSleepThenAutoWakeup(
 	OPSTATUS_SET_FLAG(pAd, fOP_STATUS_DOZE);
 
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 #endif /* RTMP_MAC_USB */
 

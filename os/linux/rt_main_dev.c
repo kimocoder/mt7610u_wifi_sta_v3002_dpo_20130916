@@ -32,10 +32,8 @@
 #include "rt_os_util.h"
 #include "rt_os_net.h"
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24)
 #ifndef SA_SHIRQ
 #define SA_SHIRQ IRQF_SHARED
-#endif
 #endif
 
 // TODO: shiang-6590, remove it when MP
@@ -59,13 +57,8 @@ PSTRING mac = "";		     /* default 00:00:00:00:00:00 */
 PSTRING hostname = "";		     /* default CMPC */
 ULONG RTDebugLevel = RT_DEBUG_ERROR; /* Set to debug mod param in init() */
 ULONG debug = RT_DEBUG_ERROR;        /* default RT_DEBUG_ERROR */
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,12)
-MODULE_PARM (mac, "s");
-MODULE_PARM (debug, "l");
-#else
 module_param (mac, charp, 0);
 module_param (debug, long, 0); // RT_DEBUG_ERROR
-#endif
 MODULE_PARM_DESC (mac, "wireless mac addr");
 MODULE_PARM_DESC (debug, "log verbosity level (0: off, 1: error only [default], 2: warnings, 3: trace, 4: info, 5: loud)");
 
@@ -220,9 +213,7 @@ int rt28xx_close(VOID *dev)
 		return 0; /* close ok */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	RTMPDrvSTAClose(pAd, net_dev);
-#endif
 
 #ifdef VENDOR_FEATURE2_SUPPORT
 	printk("Number of Packet Allocated in open = %lu\n", OS_NumOfPktAlloc);
@@ -256,7 +247,6 @@ int rt28xx_open(VOID *dev)
 	int retval = 0;
 	ULONG OpMode;
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 	struct usb_interface *intf;
@@ -264,7 +254,6 @@ int rt28xx_open(VOID *dev)
 	INT 		pm_usage_cnt;
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 	// Set debug level
 	RTDebugLevel = debug;
@@ -287,18 +276,13 @@ int rt28xx_open(VOID *dev)
 
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef CONFIG_PM
 #ifdef USB_SUPPORT_SELECTIVE_SUSPEND
 
 	RTMP_DRIVER_USB_DEV_GET(pAd, &pUsb_Dev);
 	RTMP_DRIVER_USB_INTF_GET(pAd, &intf);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
 	pm_usage_cnt = atomic_read(&intf->pm_usage_cnt);	
-#else
-	pm_usage_cnt = intf->pm_usage_cnt;
-#endif
 	if (pm_usage_cnt == 0)
 	{
 		int res=1;
@@ -313,7 +297,6 @@ int rt28xx_open(VOID *dev)
 
 #endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
 #endif /* CONFIG_PM */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
@@ -337,10 +320,8 @@ int rt28xx_open(VOID *dev)
 		if (OpMode == OPMODE_AP)
 			net_dev->wireless_handlers = (struct iw_handler_def *) &rt28xx_ap_iw_handler_def;
 #endif /* CONFIG_APSTA_MIXED_SUPPORT */
-#ifdef CONFIG_STA_SUPPORT
 		if (OpMode == OPMODE_STA)
 			net_dev->wireless_handlers = (struct iw_handler_def *) &rt28xx_iw_handler_def;
-#endif /* CONFIG_STA_SUPPORT */
 	}
 #endif /* WIRELESS_EXT >= 12 */
 
@@ -384,9 +365,7 @@ int rt28xx_open(VOID *dev)
 #endif /* LINUX */
 
 
-#ifdef CONFIG_STA_SUPPORT
 	RTMPDrvSTAOpen(pAd);
-#endif
 
 	return (retval);
 
@@ -432,14 +411,12 @@ PNET_DEV RtmpPhyNetDevInit(
 
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
-#ifdef CONFIG_STA_SUPPORT
 #if WIRELESS_EXT >= 12
 	if (OpMode == OPMODE_STA)
 	{
 		pNetDevHook->iw_handler = (void *)&rt28xx_iw_handler_def;
 	}
 #endif /*WIRELESS_EXT >= 12 */
-#endif /* CONFIG_STA_SUPPORT */
 
 #ifdef CONFIG_APSTA_MIXED_SUPPORT
 #if WIRELESS_EXT >= 12
@@ -462,9 +439,6 @@ PNET_DEV RtmpPhyNetDevInit(
 
 	RTMP_DRIVER_NET_DEV_SET(pAd, net_dev);
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,24)
-	SET_MODULE_OWNER(net_dev);
-#endif 
 
 
 
@@ -480,29 +454,12 @@ VOID *RtmpNetEthConvertDevSearch(
 	struct net_device *pNetDev;
 
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 	struct net_device *net_dev = (struct net_device *)net_dev_;
 	struct net *net;
 	net = dev_net(net_dev);
 	
 	BUG_ON(!net);
 	for_each_netdev(net, pNetDev)
-#else
-	struct net *net;
-
-	struct net_device *net_dev = (struct net_device *)net_dev_;
-	BUG_ON(!net_dev->nd_net);
-	net = net_dev->nd_net;
-	for_each_netdev(net, pNetDev)
-#endif
-#else
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
-		for_each_netdev(pNetDev)
-#else 
-	for (pNetDev = dev_base; pNetDev; pNetDev = pNetDev->next)
-#endif
-#endif
 	{
 		if ((pNetDev->type == ARPHRD_ETHER)
 			&& NdisEqualMemory(pNetDev->dev_addr, &pData[6], pNetDev->addr_len))
@@ -644,13 +601,11 @@ INT rt28xx_ioctl(
 	RTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);
 
 
-#ifdef CONFIG_STA_SUPPORT
 /*	IF_DEV_CONFIG_OPMODE_ON_STA(pAd) */
 	RT_CONFIG_IF_OPMODE_ON_STA(OpMode)
 	{
 		ret = rt28xx_sta_ioctl(net_dev, rq, cmd);
 	}
-#endif /* CONFIG_STA_SUPPORT */
 
 	return ret;
 }

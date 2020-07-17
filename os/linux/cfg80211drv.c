@@ -107,9 +107,7 @@ INT CFG80211DRV_IoctlHandle(
 			break;
 
 		case CMD_RTPRIV_IOCTL_80211_KEY_DEFAULT_SET:
-#ifdef CONFIG_STA_SUPPORT
 			pAd->StaCfg.DefaultKeyId = Data; /* base 0 */
-#endif /* CONFIG_STA_SUPPORT */
 			break;
 
 		case CMD_RTPRIV_IOCTL_80211_CONNECT_TO:
@@ -278,7 +276,6 @@ BOOLEAN CFG80211DRV_OpsSetChannel(
 		CFG80211DBG(RT_DEBUG_ERROR, ("80211> Change channel fail!\n"));
 	} /* End of if */
 
-#ifdef CONFIG_STA_SUPPORT
 #ifdef DOT11_N_SUPPORT
 	if ((IfType == RT_CMD_80211_IFTYPE_STATION) && (FlgIsChanged == TRUE))
 	{
@@ -309,7 +306,6 @@ BOOLEAN CFG80211DRV_OpsSetChannel(
 		Set_NetworkType_Proc(pAd, "Monitor");
 		RTMP_IO_WRITE32(pAd, RX_FILTR_CFG, pChan->MonFilterFlag);
 	} /* End of if */
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }
@@ -320,7 +316,6 @@ BOOLEAN CFG80211DRV_OpsChgVirtualInf(
 	VOID						*pFlgFilter,
 	UINT8						IfType)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 	UINT32 FlgFilter = *(UINT32 *)pFlgFilter;
 
@@ -389,7 +384,6 @@ BOOLEAN CFG80211DRV_OpsChgVirtualInf(
 
 	CFG80211DBG(RT_DEBUG_ERROR, ("80211> SSID = %s\n", pAd->CommonCfg.Ssid));
 	Set_SSID_Proc(pAd, (PSTRING)pAd->CommonCfg.Ssid);
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }
@@ -414,7 +408,6 @@ BOOLEAN CFG80211DRV_OpsJoinIbss(
 	VOID						*pAdOrg,
 	VOID						*pData)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 	CMD_RTPRIV_IOCTL_80211_IBSS *pIbssInfo;
 
@@ -424,7 +417,6 @@ BOOLEAN CFG80211DRV_OpsJoinIbss(
 
 	pAd->CommonCfg.BeaconPeriod = pIbssInfo->BeaconInterval;
 	Set_SSID_Proc(pAd, (PSTRING)pIbssInfo->pSsid);
-#endif /* CONFIG_STA_SUPPORT */
 	return TRUE;
 }
 
@@ -432,14 +424,12 @@ BOOLEAN CFG80211DRV_OpsJoinIbss(
 BOOLEAN CFG80211DRV_OpsLeave(
 	VOID						*pAdOrg)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 
 
 	pAd->StaCfg.bAutoReconnect = FALSE;
 	pAd->FlgCfg80211Connecting = FALSE;
 	LinkDown(pAd, FALSE);
-#endif /* CONFIG_STA_SUPPORT */
 	return TRUE;
 }
 
@@ -454,7 +444,6 @@ BOOLEAN CFG80211DRV_StaGet(
 
 	pIbssInfo = (CMD_RTPRIV_IOCTL_80211_STA *)pData;
 
-#ifdef CONFIG_STA_SUPPORT
 {
 	HTTRANSMIT_SETTING PhyInfo;
 	ULONG DataRate = 0;
@@ -497,7 +486,6 @@ BOOLEAN CFG80211DRV_StaGet(
 			pAd->StaCfg.RssiSample.AvgRssi2) / 3;
 	pIbssInfo->Signal = RSSI;
 }
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }
@@ -507,7 +495,6 @@ BOOLEAN CFG80211DRV_KeyAdd(
 	VOID						*pAdOrg,
 	VOID						*pData)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 	CMD_RTPRIV_IOCTL_80211_KEY *pKeyInfo;
 
@@ -545,9 +532,9 @@ BOOLEAN CFG80211DRV_KeyAdd(
 	}
 	else
 	{
-		DBGPRINT(RT_DEBUG_TRACE, ("Set_WPAPSK_Proc ==> %d, %d, %d...\n", pKeyInfo->KeyId, pKeyInfo->KeyType, strlen(pKeyInfo->KeyBuf)));
-		
 		RT_CMD_STA_IOCTL_SECURITY IoctlSec;
+
+		DBGPRINT(RT_DEBUG_TRACE, ("Set_WPAPSK_Proc ==> %d, %d, %lu...\n", pKeyInfo->KeyId, pKeyInfo->KeyType, strlen(pKeyInfo->KeyBuf)));
 		
 		IoctlSec.KeyIdx = pKeyInfo->KeyId;
 		IoctlSec.pData = pKeyInfo->KeyBuf;
@@ -559,11 +546,7 @@ BOOLEAN CFG80211DRV_KeyAdd(
 		else if (pAd->StaCfg.wdev.WepStatus == Ndis802_11Encryption3Enabled)
 			IoctlSec.Alg = RT_CMD_STA_IOCTL_SECURITY_ALG_CCMP;
 		IoctlSec.flags = RT_CMD_STA_IOCTL_SECURITY_ENABLED;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37))
 		if (pKeyInfo->bPairwise == FALSE )
-#else
-		if (pKeyInfo->KeyId > 0)
-#endif	
 		{
 			if (pAd->StaCfg.GroupCipher == Ndis802_11Encryption2Enabled)
 				IoctlSec.Alg = RT_CMD_STA_IOCTL_SECURITY_ALG_TKIP;
@@ -589,7 +572,6 @@ BOOLEAN CFG80211DRV_KeyAdd(
 							  &IoctlSec, 0, INT_MAIN);
 	}
 
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }
@@ -599,7 +581,6 @@ BOOLEAN CFG80211DRV_Connect(
 	VOID						*pAdOrg,
 	VOID						*pData)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 	CMD_RTPRIV_IOCTL_80211_CONNECT *pConnInfo;
 	UCHAR SSID[NDIS_802_11_LENGTH_SSID + 1]; /* Add One for SSID_Len == 32 */
@@ -771,7 +752,6 @@ BOOLEAN CFG80211DRV_Connect(
 	Set_SSID_Proc(pAd, (PSTRING)SSID);
 	CFG80211DBG(RT_DEBUG_TRACE, ("80211> Connecting SSID = %s\n", SSID));
 
-#endif /* CONFIG_STA_SUPPORT */
 
 	return TRUE;
 }
@@ -1165,7 +1145,6 @@ VOID CFG80211_Scaning(
 	IN UINT32						FrameLen,
 	IN INT32						RSSI)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdCB;
 	VOID *pCfg80211_CB = pAd->pCfg80211_CB;
 	BOOLEAN FlgIsNMode;
@@ -1209,7 +1188,6 @@ VOID CFG80211_Scaning(
 						RSSI,
 						FlgIsNMode,
 						BW);
-#endif /* CONFIG_STA_SUPPORT */
 } /* End of CFG80211_Scaning */
 
 
@@ -1232,7 +1210,6 @@ VOID CFG80211_ScanEnd(
 	IN VOID						*pAdCB,
 	IN BOOLEAN					FlgIsAborted)
 {
-#ifdef CONFIG_STA_SUPPORT
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdCB;
 
 
@@ -1257,7 +1234,6 @@ VOID CFG80211_ScanEnd(
 	CFG80211OS_ScanEnd(CFG80211CB, FlgIsAborted);
 
 	pAd->FlgCfg80211Scanning = FALSE;
-#endif /* CONFIG_STA_SUPPORT */
 } /* End of CFG80211_ScanEnd */
 
 
@@ -1354,13 +1330,12 @@ INT CFG80211_SendWirelessEvent(
 }
 #endif /* RT_P2P_SPECIFIC_WIRELESS_EVENT */
 
-#ifdef CONFIG_STA_SUPPORT
 VOID CFG80211_LostApInform(
     IN VOID 					*pAdCB)
 {
 
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdCB;
-	CFG80211_CB *p80211CB = pAd->pCfg80211_CB;
+	// TODO CFG80211_CB *p80211CB = pAd->pCfg80211_CB;
 	
 	DBGPRINT(RT_DEBUG_TRACE, ("80211> CFG80211_LostApInform ==> \n"));
 	pAd->StaCfg.bAutoReconnect = FALSE;
@@ -1383,16 +1358,11 @@ VOID CFG80211_LostApInform(
 	// This is important to prevent the WARN_ON() that we are still connected to a BSS
 	// (net/wireless/core.c: WARN_ON(wdev->current_bss))
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,2,0))
 	cfg80211_disconnected(pAd->net_dev, 0, NULL, 0, true, GFP_KERNEL);
-#else
-	cfg80211_disconnected(pAd->net_dev, 0, NULL, 0, GFP_KERNEL);
-#endif
 
 	//}
 	//}
 }
-#endif /*CONFIG_STA_SUPPORT*/
 
 #endif /* RT_CFG80211_SUPPORT */
 
