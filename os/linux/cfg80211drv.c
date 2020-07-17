@@ -1185,7 +1185,7 @@ VOID CFG80211_Scaning(
 						ChanId,
 						pFrame,
 						FrameLen,
-						RSSI,
+						RSSI*100,
 						FlgIsNMode,
 						BW);
 } /* End of CFG80211_Scaning */
